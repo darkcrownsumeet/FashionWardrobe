@@ -1,0 +1,479 @@
+/* ============================================
+   FashionWardrobe — Consolidated App Styles
+   Source: All Stitch-generated pages
+   ============================================ */
+
+/* --- Global Reset for Responsive Sanity --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-x: hidden;
+}
+
+body {
+    overflow-x: hidden;
+    min-width: 0;
+}
+
+/* Prevent fixed / absolute elements from creating horizontal scroll */
+#app, #persistent-nav {
+    overflow-x: hidden;
+    min-width: 0;
+}
+
+/* Ensure images never overflow */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* --- Material Symbols --- */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* --- Nav Scroll Transition --- */
+.nav-icon,
+.nav-brand {
+    transition: color 0.4s ease, opacity 0.3s ease;
+}
+
+.nav-transparent {
+    background: transparent;
+    box-shadow: none;
+    border-bottom: 1px solid transparent;
+}
+.nav-transparent .nav-icon,
+.nav-transparent .nav-brand {
+    color: #ffffff;
+}
+.nav-transparent .nav-icon:hover {
+    color: #b0b0b0;
+}
+.nav-transparent .nav-brand {
+    text-shadow: 0 1px 8px rgba(0,0,0,0.3);
+}
+.nav-transparent .nav-link-active {
+    border-bottom-color: #ffffff;
+}
+
+/* Hover on transparent nav — turns white like Louis Vuitton */
+.nav-transparent:hover {
+    background: #ffffff;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.nav-transparent:hover .nav-icon,
+.nav-transparent:hover .nav-brand {
+    color: #1b1b1b;
+}
+.nav-transparent:hover .nav-icon:hover {
+    color: #757575;
+}
+.nav-transparent:hover .nav-brand {
+    text-shadow: none;
+}
+.nav-transparent:hover .nav-link-active {
+    border-bottom-color: #1b1b1b;
+}
+
+.nav-solid {
+    background: #ffffff;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.nav-solid .nav-icon,
+.nav-solid .nav-brand {
+    color: #1b1b1b;
+}
+.nav-solid .nav-icon:hover {
+    color: #757575;
+}
+.nav-solid .nav-brand {
+    text-shadow: none;
+}
+.nav-solid .nav-link-active {
+    border-bottom-color: #1b1b1b;
+}
+
+.nav-link-active {
+    border-bottom: 2px solid transparent;
+    padding-bottom: 2px;
+    transition: border-color 0.5s ease;
+}
+
+/* --- Responsive Nav Brand --- */
+.nav-brand {
+    font-size: clamp(16px, 3vw, 34px) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* --- Glassmorphism Variants --- */
+.glass-effect,
+.glass-panel,
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* --- Scrollbar --- */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e2e2e2;
+    border-radius: 10px;
+}
+
+/* --- Gender Selection Cards (Step 1) --- */
+.selection-card.active {
+    outline: 3px solid #000;
+    outline-offset: 4px;
+}
+
+.selection-card:hover .selection-overlay {
+    opacity: 1;
+}
+
+.progress-bar-fill {
+    transition: width 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* --- Occasion Cards (Step 2) --- */
+.glass-card-interactive {
+    background: #f4f4f4;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.glass-card-interactive:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.1);
+}
+.selected-card {
+    outline: 2px solid #000000;
+    outline-offset: 4px;
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+}
+.editorial-image {
+    transition: transform 0.8s ease;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: transform;
+}
+.glass-card-interactive:hover .editorial-image {
+    transform: scale(1.1) translateZ(0);
+}
+
+/* --- Style Vibe Cards (Step 3) --- */
+.style-card:hover .overlay {
+    opacity: 1;
+}
+.style-card.active {
+    outline: 2px solid #000000;
+    outline-offset: 4px;
+}
+
+/* --- Color/Budget Cards (Step 5-6) --- */
+.selection-glow {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.selection-glow:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -20px rgba(0,0,0,0.1);
+}
+.active-card {
+    border: 2px solid #000000 !important;
+}
+.step-indicator {
+    width: 40px;
+    height: 2px;
+    background: #e2e2e2;
+    transition: all 0.6s ease;
+}
+.step-indicator.active {
+    background: #000000;
+}
+
+/* --- Auth Floating Labels --- */
+.auth-input:focus ~ label,
+.auth-input:not(:placeholder-shown) ~ label {
+    transform: translateY(-24px) scale(0.85);
+    color: #000;
+}
+
+/* --- Editorial Overlay --- */
+.editorial-overlay {
+    background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, transparent 40%);
+}
+
+/* --- Animations --- */
+.reveal-active {
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInFromBottom {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Page transition */
+.page-enter {
+    animation: slideInFromBottom 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Toast notification */
+.toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1b1b1b;
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 9999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    max-width: calc(100vw - 40px);
+    text-align: center;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Loading shimmer for results page */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.shimmer {
+    background: linear-gradient(90deg, #f3f3f3 25%, #e8e8e8 50%, #f3f3f3 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+/* ==============================================
+   RESPONSIVE OVERRIDES
+   Fix layout at non-fullscreen window widths
+   ============================================== */
+
+/* Fluid horizontal padding — replaces hard 64px at md */
+@media (min-width: 768px) and (max-width: 1279px) {
+    .md\:px-margin-desktop {
+        padding-left: clamp(20px, 4vw, 64px) !important;
+        padding-right: clamp(20px, 4vw, 64px) !important;
+    }
+}
+
+/* Fix fixed-position headers that use max-w-container-max (they need 100% width) */
+nav[class*="fixed"],
+header[class*="fixed"],
+footer[class*="fixed"],
+div[class*="fixed"] {
+    max-width: 100% !important;
+}
+
+/* Ensure section max-width containers stay within viewport */
+.max-w-container-max {
+    max-width: min(1440px, 100vw) !important;
+}
+
+/* Hero section responsive fixes */
+@media (max-width: 767px) {
+    header[class*="h-screen"] {
+        min-height: 500px;
+    }
+}
+
+/* Responsive hero buttons */
+@media (max-width: 480px) {
+    #hero-cta,
+    #hero-cta + button {
+        padding: 14px 24px;
+        font-size: 12px;
+    }
+}
+
+/* Fix AI Fashion Lab stat card overflow */
+@media (max-width: 1023px) {
+    .glass-effect[class*="absolute"][class*="-bottom-10"] {
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+        margin-top: 16px;
+    }
+}
+
+/* Grid responsive enhancements — add intermediate breakpoints */
+@media (min-width: 640px) and (max-width: 767px) {
+    .grid-cols-1.md\:grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+/* Step header brand text scaling */
+header[class*="fixed"] span[class*="font-display-lg"][class*="tracking-tighter"],
+nav[class*="fixed"] span[class*="font-display-lg"][class*="tracking-tighter"],
+nav[class*="fixed"] div[class*="font-display-lg"][class*="tracking-tighter"] {
+    font-size: clamp(16px, 2.5vw, 24px) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+/* Newsletter form responsive */
+@media (max-width: 639px) {
+    form[class*="flex-col"] input,
+    form[class*="flex-col"] button {
+        width: 100%;
+    }
+}
+
+/* Footer grid responsive */
+@media (max-width: 767px) {
+    .grid-cols-2.md\:grid-cols-12 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Outfit page floating footer bar fix */
+@media (max-width: 767px) {
+    footer[class*="fixed"][class*="bottom-8"] {
+        bottom: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+    }
+}
+
+/* Color palette cards — prevent color circles from overflowing */
+.color-palette-card .flex.-space-x-4 > div {
+    width: clamp(36px, 8vw, 64px);
+    height: clamp(36px, 8vw, 64px);
+}
+
+/* Ensure all page main content doesn't overflow */
+main {
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* Prevent absolute positioned glass stat from overflowing on small screens */
+@media (max-width: 1023px) {
+    .relative > .absolute.-bottom-10.-right-10 {
+        position: relative !important;
+        bottom: auto !important;
+        right: auto !important;
+        margin-top: 16px;
+        max-width: 200px;
+    }
+}
+
+/* Contain selection card outlines within viewport */
+.selection-card.active {
+    outline-offset: 2px;
+}
+@media (max-width: 767px) {
+    .selection-card.active {
+        outline-offset: 0px;
+        outline-width: 2px;
+    }
+}
+
+/* Ensure fixed elements don't cause horizontal overflow */
+[style*="position: fixed"],
+[class*="fixed"] {
+    max-width: 100vw;
+}
+
+/* Force body/html width constraint */
+html, body {
+    width: 100%;
+    max-width: 100vw;
+}
+
+/* Gender card grid: stack at small screens without gaps causing overflow */
+@media (max-width: 767px) {
+    section[class*="grid-cols-1"][class*="md:grid-cols-3"] {
+        gap: 16px !important;
+    }
+}
+
+/* Ensure the hero CTA buttons wrap and stay within bounds */
+@media (max-width: 400px) {
+    #hero-cta,
+    #hero-cta ~ button {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Trending cards: shrink at medium screens */
+@media (max-width: 900px) {
+    .flex-none.w-\[300px\].md\:w-\[350px\] {
+        width: 260px !important;
+    }
+}
+
+/* Account dropdown — prevent overflow on small screens */
+@media (max-width: 480px) {
+    #account-dropdown {
+        right: -10px !important;
+        width: calc(100vw - 32px) !important;
+        max-width: 320px !important;
+    }
+}
+
+/* --- Morphing Dot Ripple --- */
+@keyframes ripple {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+.animate-ripple {
+    animation: ripple 0.6s ease-out forwards;
+}
+
+/* --- Floating Animation --- */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
