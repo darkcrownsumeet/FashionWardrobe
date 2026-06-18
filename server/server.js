@@ -35,6 +35,10 @@ app.post('/api/recommend', async (req, res) => {
         const missingCategories = ['topwear', 'bottomwear', 'outerwear', 'footwear', 'accessories']
             .filter(c => !coveredCategories.includes(c));
 
+        const accessoriesInstruction = missingCategories.length > 0 
+            ? `exactly 4 items that fill missing categories: ${missingCategories.join(', ')}`
+            : `exactly 4 complementary accessories (e.g., bags, jewelry, hats, sunglasses)`;
+
         const prompt = `You are an expert fashion stylist and style advisor.
 
 The user is currently wearing: ${wearingList}
@@ -62,7 +66,7 @@ If NO significant clashes exist, use this structure:
       "why": "one sentence why it pairs with the outfit",
       "colors": { "match": ["Navy", "Olive"], "avoid": ["Neon Green"] }
     }
-  ] // exactly 4 items that fill missing categories: ${missingCategories.join(', ')}
+  ] // ${accessoriesInstruction}
 }
 
 If CLASHES exist, use this structure:
