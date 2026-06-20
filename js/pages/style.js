@@ -3,7 +3,7 @@
    ============================================ */
 const StylePage = (() => {
     function render() {
-        const gender = Store.get('gender') || 'unisex';
+        const gender = Store.get('gender') || 'female';
         const occasions = Store.get('occasions') || [];
         const occasionKey = occasions.length > 0 ? occasions[0] : 'casual'; // Fallback
         const styles = MockData.getStyles(gender, occasionKey);

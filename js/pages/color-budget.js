@@ -31,7 +31,7 @@ const ColorBudgetPage = (() => {
 
     function _getSelectedItems() {
         const outfit = Store.get('currentOutfit');
-        const currentGender = Store.get('gender') || 'unisex';
+        const currentGender = Store.get('gender') || 'female';
         const occasions = Store.get('occasions') || [];
         const occasion = occasions.length > 0 ? occasions[0] : null;
         const styles = Store.get('stylePersonality') || [];

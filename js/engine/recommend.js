@@ -72,3 +72,5 @@ const RecommendationEngine = (() => {
 
     return { generate };
 })();
+
+window.RecommendEngine = RecommendEngine;

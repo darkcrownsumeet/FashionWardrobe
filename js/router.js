@@ -77,3 +77,5 @@ const Router = (() => {
 
     return { register, init, navigate, getCurrentRoute };
 })();
+
+window.Router = Router;

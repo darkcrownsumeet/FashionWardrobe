@@ -3,7 +3,7 @@
    ============================================ */
 const OccasionPage = (() => {
     function render() {
-        const gender = Store.get('gender') || 'unisex';
+        const gender = Store.get('gender') || 'female';
         const occasions = MockData.getOccasions(gender);
         const saved = Store.get('occasions') || [];
         const cardsHtml = occasions.map(o => {

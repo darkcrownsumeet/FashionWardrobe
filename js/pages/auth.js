@@ -50,7 +50,7 @@ const AuthPage = (() => {
             <h1 class="font-headline-lg text-headline-lg tracking-tighter text-on-primary cursor-pointer" onclick="Router.navigate('/landing')">FashionWardrobe</h1>
         </div>
         <div class="absolute bottom-margin-desktop left-margin-desktop z-20 max-w-md">
-            <p class="font-label-caps text-label-caps text-on-primary mb-2">Maison Edition 2024</p>
+            <p class="font-label-caps text-label-caps text-on-primary mb-2">Maison Edition</p>
             <p class="font-body-lg text-body-lg text-on-primary/80">Curation meets intelligence. Welcome to the next evolution of your personal style journey.</p>
         </div>
     </section>
@@ -252,7 +252,7 @@ const AuthPage = (() => {
                 if (!wrapper) return; // if user navigated away
                 window.google.accounts.id.initialize({
                     // Must match Google's format exactly or it silently fails to render
-                    client_id: "123456789012-dummyclientid1234567890abcdef.apps.googleusercontent.com",
+                    client_id: "303678922220-i8r6o5smesmo6prqalnrv284fae4o2sc.apps.googleusercontent.com",
                     callback: handleCredentialResponse
                 });
                 window.google.accounts.id.renderButton(wrapper, {

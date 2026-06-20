@@ -148,3 +148,5 @@ const Store = (() => {
         getWishlist, addToWishlist, removeFromWishlist, isInWishlist
     };
 })();
+
+window.Store = Store;

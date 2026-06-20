@@ -11,16 +11,71 @@
     <!-- Tailwind CSS CDN (from Stitch) -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-    <!-- Google Fonts (from Stitch) -->
+    <!-- Google Fonts -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..800;1,400..800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Inter:wght@400;500;600;800;900&family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=JetBrains+Mono:wght@400;700&display=swap"
         rel="stylesheet" />
 
     <!-- Material Symbols -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet" />
 
-    <!-- Tailwind Config (from Stitch design system) -->
+    <style>
+        /* --- Marquee --- */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* --- Film Grain Overlay --- */
+        /*
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-size: 180px 180px;
+            animation: grain 0.5s steps(2) infinite;
+        }
+        @keyframes grain {
+            0%, 100% { transform: translate(0, 0); }
+            25%       { transform: translate(-2%, -3%); }
+            50%       { transform: translate(3%, 2%); }
+            75%       { transform: translate(-1%, 4%); }
+        }
+        */
+
+        /* --- Glitch ® --- */
+        @keyframes glitch {
+            0%, 92%, 100% { opacity: 1; transform: translate(0); clip-path: none; }
+            93%  { opacity: 0.8; transform: translate(-2px, 1px); clip-path: inset(20% 0 60% 0); }
+            95%  { opacity: 0.9; transform: translate(2px, -1px); clip-path: inset(60% 0 10% 0); }
+            97%  { opacity: 0.7; transform: translate(-1px, 0px); clip-path: inset(40% 0 40% 0); }
+        }
+        .glitch-badge {
+            display: inline-block;
+            animation: glitch 4s infinite;
+            color: var(--color-brand, #ff0000);
+        }
+
+        /* --- Curtain reveal (clip-path) on style cards --- */
+        .curtain-img {
+            clip-path: inset(0 100% 0 0);
+            transition: clip-path 0.7s cubic-bezier(0.77, 0, 0.18, 1), filter 0.7s ease;
+        }
+        .group:hover .curtain-img {
+            clip-path: inset(0 0% 0 0);
+        }
+
+        /* --- Parallax hero wrapper --- */
+        .parallax-hero {
+            will-change: transform;
+            transition: transform 0.1s linear;
+        }
+    </style>
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -73,7 +128,11 @@
                         "tertiary": "#000000",
                         "on-secondary-fixed-variant": "#454747",
                         "tertiary-fixed": "#e2e2e2",
-                        "on-error-container": "#93000a"
+                        "on-error-container": "#93000a",
+                        "foreground": "#111111",
+                        "brand": "#ff0000",
+                        "brand-foreground": "#ffffff",
+                        "muted": "#888888"
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
@@ -90,6 +149,8 @@
                         "margin-mobile": "20px"
                     },
                     "fontFamily": {
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"],
                         "label-caps": ["Inter"],
                         "display-lg": ["Montserrat"],
                         "headline-md": ["Montserrat"],
@@ -115,21 +176,21 @@
     </script>
 
     <!-- Pickr Color Picker -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
     <!-- App Styles -->
-    <link rel="stylesheet" href="css/app.css?v=6" />
+    <link rel="stylesheet" href="css/app.css?v=8" />
 </head>
 
 <body
-    class="bg-background text-on-background font-body-md overflow-x-hidden selection:bg-primary selection:text-on-primary">
+    class="custom-scrollbar bg-background text-on-background font-body-md overflow-x-clip selection:bg-primary selection:text-on-primary antialiased [text-rendering:optimizeLegibility]">
 
     <!-- Persistent Nav (outside #app so fixed positioning isn't broken by page-enter transform) -->
     <div id="persistent-nav"></div>
 
     <!-- App Toast -->
-    <div id="app-toast"></div>
+    <div id="app-toast" class="toast"></div>
 
     <!-- App Container -->
     <div id="app"></div>
@@ -137,20 +198,20 @@
     <!-- Scripts (order matters: dependencies first) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="js/data/mock-data.js?v=104"></script>
-    <script src="js/store.js?v=6"></script>
-    <script src="js/router.js?v=6"></script>
-    <script src="js/engine/recommend.js?v=21"></script>
-    <script src="js/pages/landing.js?v=5"></script>
-    <script src="js/pages/auth.js?v=3"></script>
-    <script src="js/pages/gender.js?v=20"></script>
-    <script src="js/pages/occasion.js?v=11"></script>
-    <script src="js/pages/style.js?v=36"></script>
-    <script src="js/pages/outfit.js?v=20"></script>
-    <script src="js/pages/color-budget.js?v=20"></script>
+    <script src="js/store.js?v=7"></script>
+    <script src="js/router.js?v=7"></script>
+    <script src="js/engine/recommend.js?v=22"></script>
+    <script src="js/pages/landing.js?v=50"></script>
+    <script src="js/pages/auth.js?v=5"></script>
+    <script src="js/pages/gender.js?v=21"></script>
+    <script src="js/pages/occasion.js?v=12"></script>
+    <script src="js/pages/style.js?v=37"></script>
+    <script src="js/pages/outfit.js?v=21"></script>
+    <script src="js/pages/color-budget.js?v=21"></script>
     <script src="js/pages/results.js?v=32"></script>
     <script src="js/pages/saved.js?v=6"></script>
     <script src="js/pages/wishlist.js?v=6"></script>
-    <script src="js/app.js?v=4"></script>
+    <script src="js/app.js?v=7"></script>
 </body>
 
 </html>

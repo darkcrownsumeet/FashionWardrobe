@@ -3,7 +3,7 @@
    ============================================ */
 const OutfitPage = (() => {
     function _getItemsForGender() {
-        const gender = Store.get('gender') || 'unisex';
+        const gender = Store.get('gender') || 'female';
         const occasions = Store.get('occasions') || [];
         const occasion = occasions.length > 0 ? occasions[0] : null;
         const styles = Store.get('stylePersonality') || [];

@@ -30,7 +30,7 @@ const GenderPage = (() => {
         <p class="font-['Inter'] text-[14px] lg:text-[15px] text-secondary max-w-[500px] mx-auto font-light">Choose a style profile to begin your curated journey.</p>
     </section>
 
-    <section class="w-full grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10 mb-auto">
+    <section class="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-10 mb-auto">
         <!-- Male Card -->
         <div class="selection-card ${saved === 'male' ? 'active' : ''} relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_40px_80px_rgba(0,0,0,0.15)]" data-gender="male">
             <img alt="Male Style Profile" class="w-full h-full object-cover transition-transform duration-1000 [transform:translateZ(0)] backface-hidden" src="assets/img/Male.jpg"/>
@@ -51,19 +51,6 @@ const GenderPage = (() => {
             <div class="absolute bottom-0 left-0 w-full p-8 flex flex-col items-start z-10">
                 <span class="font-label-caps text-white/80 mb-2 tracking-[0.2em] text-[10px]">THE VISIONARY</span>
                 <h2 class="font-headline-md text-white text-[28px] uppercase tracking-wide">Female</h2>
-            </div>
-            <div class="absolute top-6 right-6 bg-white rounded-full p-1.5 opacity-0 group-[.active]:opacity-100 transition-opacity duration-300 shadow-xl z-20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-            </div>
-        </div>
-
-        <!-- Unisex Card -->
-        <div class="selection-card ${saved === 'unisex' ? 'active' : ''} relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_40px_80px_rgba(0,0,0,0.15)]" data-gender="unisex">
-            <img alt="Unisex Style Profile" class="w-full h-full object-cover transition-transform duration-1000 [transform:translateZ(0)] backface-hidden" src="assets/img/unisex.jpg"/>
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500"></div>
-            <div class="absolute bottom-0 left-0 w-full p-8 flex flex-col items-start z-10">
-                <span class="font-label-caps text-white/80 mb-2 tracking-[0.2em] text-[10px]">THE COLLECTIVE</span>
-                <h2 class="font-headline-md text-white text-[28px] uppercase tracking-wide">Unisex</h2>
             </div>
             <div class="absolute top-6 right-6 bg-white rounded-full p-1.5 opacity-0 group-[.active]:opacity-100 transition-opacity duration-300 shadow-xl z-20 flex items-center justify-center">
                 <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>

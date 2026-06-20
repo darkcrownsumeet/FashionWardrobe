@@ -9,17 +9,17 @@
 }
 
 html {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 body {
-    overflow-x: hidden;
+    overflow-x: clip;
     min-width: 0;
 }
 
 /* Prevent fixed / absolute elements from creating horizontal scroll */
 #app, #persistent-nav {
-    overflow-x: hidden;
+    overflow-x: clip;
     min-width: 0;
 }
 
@@ -476,4 +476,32 @@ html, body {
 }
 .animate-float {
     animation: float 6s ease-in-out infinite;
+}
+
+
+/* --- Cinematic Clip-Path Reveal --- */
+@keyframes clipReveal {
+    0% { clip-path: inset(100% 0 0 0); transform: scale(1.1); }
+    100% { clip-path: inset(0 0 0 0); transform: scale(1); }
+}
+.animate-clip-reveal {
+    animation: clipReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- Dark Mode Section Transition --- */
+body {
+    transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+body.dark-mode-override {
+    background-color: var(--foreground, #000) !important;
+    color: var(--background, #fff) !important;
+}
+/* Ensure the sticky nav adapts during dark mode override */
+body.dark-mode-override nav.sticky {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+}
+body.dark-mode-override nav.sticky .text-brand {
+    color: var(--brand, #ff0000) !important; /* Keep brand color */
 }
