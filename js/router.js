@@ -31,13 +31,11 @@ const Router = (() => {
         const styles = Store.get('stylePersonality');
         const outfit = Store.get('currentOutfit');
         const hasOutfit = outfit && Object.values(outfit).some(arr => arr.length > 0);
-        const budget = Store.get('budget');
-
         if (targetPath === '/occasion' && !gender) targetPath = '/gender';
         if (targetPath === '/style' && (!occasions || occasions.length === 0)) targetPath = '/occasion';
         if (targetPath === '/outfit' && (!styles || styles.length === 0)) targetPath = '/style';
-        if (targetPath === '/color-budget' && !hasOutfit) targetPath = '/outfit';
-        if (targetPath === '/results' && !budget && !fullHash.includes('?data=')) targetPath = '/color-budget';
+        if (targetPath === '/color' && !hasOutfit) targetPath = '/outfit';
+        if (targetPath === '/results' && !hasOutfit && !fullHash.includes('?data=')) targetPath = '/color';
         
         if (targetPath !== basePath) {
             window.location.hash = targetPath;

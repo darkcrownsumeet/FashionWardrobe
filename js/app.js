@@ -30,7 +30,7 @@ const App = (() => {
         Router.register('/occasion', OccasionPage);
         Router.register('/style', StylePage);
         Router.register('/outfit', OutfitPage);
-        Router.register('/color-budget', ColorBudgetPage);
+        Router.register('/color', ColorPage);
         Router.register('/results', ResultsPage);
         Router.register('/saved', SavedPage);
         Router.register('/wishlist', WishlistPage);

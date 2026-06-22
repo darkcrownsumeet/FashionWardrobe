@@ -6,116 +6,267 @@ const OccasionPage = (() => {
         const gender = Store.get('gender') || 'female';
         const occasions = MockData.getOccasions(gender);
         const saved = Store.get('occasions') || [];
-        const cardsHtml = occasions.map(o => {
-            let objPos = 'center';
-            if (gender === 'female') {
-                if (['college', 'wedding', 'formal'].includes(o.key)) objPos = 'center 25%';
-                if (o.key === 'gym') objPos = 'center 80%';
-            }
-            return `
-            <button class="group relative overflow-hidden rounded-xl aspect-[4/5] bg-surface-container transition-all duration-500 w-full text-left cursor-pointer ${saved.includes(o.key) ? 'selected-card' : ''}" data-occasion="${o.key}">
-                <img alt="${o.label}" style="object-position: ${objPos};" class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-[.selected-card]:grayscale-0 transition-all duration-700 [transform:translateZ(0)] backface-hidden" src="${o.img}"/>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 left-6 z-10">
-                    <h3 class="font-headline-md text-headline-md text-white">${o.label}</h3>
-                </div>
-                <div class="absolute top-4 right-4 bg-white rounded-full p-1.5 opacity-0 group-[.selected-card]:opacity-100 transition-opacity duration-300 shadow-xl z-20 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                </div>
-            </button>
-        `}).join('');
+                let pagesHtml = '';
+        for (let i = 0; i < occasions.length; i += 2) {
+            const pair = occasions.slice(i, i + 2);
+            const pageIdx = Math.floor(i / 2);
+            
+            const cardsInPage = pair.map((o, offsetIdx) => {
+                const idx = i + offsetIdx;
+                const isSelected = saved.includes(o.key);
+                const classState = isSelected 
+                    ? 'opacity-100 border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-10 active' 
+                    : 'opacity-80 border-transparent hover:opacity-100';
+                const imgState = isSelected ? 'grayscale-0' : 'grayscale';
+                const iconState = isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-50';
+                
+                return `
+                <div class="selection-card group relative flex flex-col cursor-pointer transition-all duration-700 ease-[var(--ease-out-expo)] border-[4px] h-full w-full overflow-hidden ${classState}" data-occasion="${o.key}">
+                    <!-- Background Image -->
+                    <img alt="${o.label}" src="${o.img}" class="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-[var(--ease-out-expo)] group-hover:grayscale-0 group-[.active]:grayscale-0 ${imgState}" style="object-position: center ${o.key === 'gym' ? '80%' : 'center'};">
+                    
+                    <!-- Gradients -->
+                    <div class="absolute top-0 inset-x-0 h-1/4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none"></div>
+                    <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    
+                    <!-- Top Number -->
+                    <div class="absolute top-6 left-6 font-mono text-[10px] text-white tracking-[0.3em] font-bold z-10">0${idx + 1}</div>
+                    
+                    <!-- Hover Hint -->
+                    <div class="absolute top-6 right-6 pointer-events-none z-20">
+                        <div class="text-white font-mono text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-[-10px] group-hover:translate-y-0 group-[.active]:hidden font-bold drop-shadow-md">SELECT <span class="material-symbols-outlined text-[14px]">arrow_forward</span></div>
+                    </div>
+                    
+                    <!-- Top Right Icon -->
+                    <div class="absolute top-6 right-6 z-10 material-symbols-outlined text-brand transform transition-all duration-300 group-[.active]:opacity-100 group-[.active]:scale-100 ${iconState}">check_circle</div>
+                    
+                    <!-- Bottom Content -->
+                    <div class="absolute bottom-0 left-0 w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-1 z-10 transform translate-y-4 transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:translate-y-0 group-[.active]:translate-y-0">
+                        <span class="text-xl lg:text-3xl font-extrabold uppercase tracking-tighter text-white">${o.label}</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            pagesHtml += `
+            <div class="page-container absolute inset-0 p-4 lg:p-12 grid grid-cols-2 gap-4 lg:gap-10 transition-all duration-700 ease-[var(--ease-out-expo)]" data-page="${pageIdx}" style="opacity: ${pageIdx === 0 ? '0' : '0'}; transform: translateX(${pageIdx === 0 ? '12px' : '1.5rem'}); pointer-events: ${pageIdx === 0 ? 'auto' : 'none'};">
+                ${cardsInPage}
+            </div>`;
+        }
 
         return `
-<header class="fixed top-0 left-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-surface-container-highest px-4 sm:px-6 md:px-10 lg:px-16 py-4">
-    <div class="flex justify-between items-center max-w-[1440px] mx-auto w-full gap-4">
-        <span class="font-display-lg text-[18px] sm:text-[20px] uppercase tracking-[0.2em] text-primary cursor-pointer transition-opacity hover:opacity-70" onclick="Router.navigate('/landing')">FASHIONWARDROBE</span>
-        <div class="flex items-center gap-4 sm:gap-6">
-            <div class="hidden sm:flex items-center gap-2 bg-surface-container-low px-4 py-1.5 rounded-full border border-outline-variant/30">
-                <span class="font-label-caps text-primary text-[10px] tracking-[0.15em]">STEP 2 OF 7</span>
+<div class="h-screen w-screen bg-background text-foreground flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden">
+    <!-- Top Nav -->
+    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground bg-background px-6 py-4">
+        <div class="font-mono text-xs font-bold tracking-tighter cursor-pointer" onclick="window.Router.navigate('/landing')">
+            FASHIONWARDROBE<sup class="ml-1 text-brand">®</sup>
+        </div>
+        <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
+            <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 02 / 06</span>
+            <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground h-full overflow-hidden">
+        
+        <!-- Left Side: Copy -->
+        <div class="w-full lg:w-[35%] h-[30%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground p-6 lg:p-12 relative overflow-hidden">
+            <div class="mt-2 lg:mt-8 z-10">
+                <div class="flex items-center gap-3 mb-2 lg:mb-6">
+                    <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand block">Step 02 / 07</span>
+                </div>
+                <h1 class="text-3xl lg:text-[clamp(2.5rem,4vw,4.5rem)] font-extrabold uppercase leading-[0.85] tracking-tighter font-sans antialiased mb-2 lg:mb-6">
+                    What's the<br>
+                    <span class="text-brand">occasion</span>?
+                </h1>
+                <div class="flex gap-4 items-start mb-12">
+                    <div class="w-1 h-full bg-foreground/10 flex-shrink-0 mt-2"></div>
+                    <p class="font-mono text-[10px] lg:text-xs leading-relaxed text-muted max-w-sm uppercase tracking-widest hidden sm:block">
+                        Select the primary setting for your next look.
+                    </p>
+                </div>
+
+                <!-- Prominent Counter -->
+                <div class="inline-flex items-center gap-4 px-6 py-4 border-[2px] border-foreground bg-background shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] w-fit transition-all duration-300" id="selection-counter-box">
+                    <div class="flex items-baseline gap-1">
+                        <span class="font-mono text-3xl font-black text-brand" id="selection-counter-num">${saved.length > 0 ? '1' : '0'}</span>
+                        <span class="font-mono text-lg font-bold text-foreground">/1</span>
+                    </div>
+                    <div class="w-px h-8 bg-foreground/20"></div>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">SELECTED</span>
+                </div>
             </div>
-            <button class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant/30 text-primary group" onclick="Router.navigate('/landing')">
-                <span class="material-symbols-outlined text-[18px] group-hover:rotate-90 transition-transform duration-300">close</span>
+        </div>
+
+        <!-- Right Side: Cards -->
+        <div id="lookbook-container" class="w-full lg:w-[65%] h-[70%] lg:h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwgMCwgMCwgMC4wNSkiLz48L3N2Zz4=')] overflow-hidden relative">
+            <!-- Carousel Arrows -->
+            <button id="prev-btn" class="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-2xl">chevron_left</span>
+            </button>
+            <button id="next-btn" class="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-2xl">chevron_right</span>
+            </button>
+            
+            ${pagesHtml}
+            
+            <!-- Carousel Dots -->
+            <div id="carousel-dots" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2">
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Bar -->
+    <footer class="bg-background flex flex-col md:flex-row items-stretch border-t border-foreground shrink-0 z-50 relative">
+        <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground">
+            <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted hover:text-foreground transition-colors flex items-center group" onclick="window.Router.navigate('/gender')">
+                <span class="material-symbols-outlined text-[14px] mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span> BACK
             </button>
         </div>
-    </div>
-    <div class="absolute bottom-0 left-0 w-full bg-surface-container-highest h-[3px] overflow-hidden">
-        <div class="progress-bar-fill bg-gradient-to-r from-primary to-primary/70 h-full shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all duration-1000 ease-out" style="width: 28.5%;"></div>
-    </div>
-</header>
-<main class="flex-grow px-4 sm:px-6 md:px-10 lg:px-16 max-w-7xl mx-auto w-full flex flex-col items-center justify-center min-h-[100dvh] pt-[100px] pb-32 md:pb-40">
-    <section class="text-center mb-6 lg:mb-8 w-full mt-auto">
-        <h1 class="font-['Playfair_Display'] font-medium text-primary text-[36px] lg:text-[48px] leading-tight tracking-tight mb-2">What's the <span class="italic font-light">occasion</span>?</h1>
-        <p class="font-['Inter'] text-[14px] lg:text-[15px] text-secondary max-w-[500px] mx-auto font-light">Select the primary setting for your next look.</p>
-    </section>
-    <div class="w-full grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-auto">${cardsHtml}</div>
-</main>
-<footer class="fixed bottom-0 left-0 w-full z-40 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-0" id="floating-footer">
-    <div class="bg-white/70 backdrop-blur-2xl border-t border-surface-container-highest shadow-[0_-10px_40px_rgba(0,0,0,0.05)] py-4 sm:py-6 px-4 sm:px-6 md:px-10 lg:px-16">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
-            <button class="w-full sm:w-auto font-button text-[12px] tracking-[0.15em] text-secondary hover:text-primary transition-colors flex items-center justify-center group" onclick="Router.navigate('/gender')">
-                <span class="material-symbols-outlined text-[16px] mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span> BACK
-            </button>
-            <button class="w-full sm:w-auto bg-primary text-on-primary font-button px-12 py-4 uppercase tracking-[0.15em] transition-all duration-500 hover:bg-tertiary-container disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap group flex items-center justify-center" id="next-btn" ${saved.length > 0 ? '' : 'disabled'}>
-                Continue
-                <span class="material-symbols-outlined text-[16px] inline-block ml-3 group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </button>
-        </div>
-    </div>
-</footer>`;
+        <button id="next-btn-main" class="flex-1 bg-brand text-brand-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed group flex items-center justify-center gap-4" ${saved.length > 0 ? '' : 'disabled'}>
+            Continue to Match
+            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </button>
+    </footer>
+</div>
+        `;
     }
 
     function init() {
-        const cards = document.querySelectorAll('[data-occasion]');
-        const btn = document.getElementById('next-btn');
+        const cards = document.querySelectorAll('.selection-card');
+        const pages = document.querySelectorAll('.page-container');
+        const btn = document.getElementById('next-btn-main');
+        const container = document.getElementById('lookbook-container');
+        const dotsContainer = document.getElementById('carousel-dots');
+        
         let selected = new Set(Store.get('occasions') || []);
+        let currentPage = 0;
+        const totalPages = pages.length;
+        let isAnimating = false;
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nxtBtn = document.getElementById('next-btn');
+        
+        // Generate Dots
+        dotsContainer.innerHTML = Array.from({length: totalPages}).map((_, i) => 
+            `<div class="w-2 h-2 rounded-full border border-foreground transition-colors ${i === 0 ? 'bg-foreground' : 'bg-transparent'}"></div>`
+        ).join('');
+        const dots = dotsContainer.querySelectorAll('div');
+
+        function updatePageState() {
+            // Update dots
+            dots.forEach((d, i) => {
+                d.className = `w-2 h-2 rounded-full border border-foreground transition-colors ${i === currentPage ? 'bg-foreground' : 'bg-transparent'}`;
+            });
+            
+            prevBtn.disabled = currentPage === 0;
+            nxtBtn.disabled = currentPage === totalPages - 1;
+            
+            pages.forEach((page, idx) => {
+                if (idx === currentPage) {
+                    page.style.opacity = '1';
+                    page.style.transform = 'translateX(0)';
+                    page.style.pointerEvents = 'auto';
+                } else if (idx < currentPage) {
+                    page.style.opacity = '0';
+                    page.style.transform = 'translateX(-1.5rem)';
+                    page.style.pointerEvents = 'none';
+                } else {
+                    page.style.opacity = '0';
+                    page.style.transform = 'translateX(1.5rem)';
+                    page.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        function nextPage() {
+            if (isAnimating || currentPage >= totalPages - 1) return;
+            isAnimating = true;
+            currentPage++;
+            updatePageState();
+            setTimeout(() => isAnimating = false, 700);
+        }
+
+        function prevPage() {
+            if (isAnimating || currentPage <= 0) return;
+            isAnimating = true;
+            currentPage--;
+            updatePageState();
+            setTimeout(() => isAnimating = false, 700);
+        }
+
+        prevBtn.addEventListener('click', prevPage);
+        nxtBtn.addEventListener('click', nextPage);
+
+        // Initialize state
+        updatePageState();
+        // Initial entrance animation fix since opacity is managed by updatePageState
+        setTimeout(() => {
+            cards.forEach((c, i) => {
+                const cardPage = Math.floor(i / 2);
+                if (cardPage === currentPage) {
+                    c.style.transform = 'translateX(12px)';
+                    c.style.opacity = '0';
+                    setTimeout(() => {
+                        c.style.transform = 'translateX(0)';
+                        c.style.opacity = selected.has(c.dataset.occasion) ? '1' : '0.8';
+                    }, i * 100);
+                }
+            });
+        }, 50);
 
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 const key = card.dataset.occasion;
 
-                // If clicking the already selected card, deselect it
+                // Toggle logic
                 if (selected.has(key)) {
                     selected.clear();
-                    card.classList.remove('selected-card');
                 } else {
                     const prevOccasion = Store.get('occasions')?.[0];
-
-                    // Clear previous selection
                     selected.clear();
-                    cards.forEach(c => c.classList.remove('selected-card'));
-
-                    // Select new card
                     selected.add(key);
-                    card.classList.add('selected-card');
 
-                    // If occasion changed, wipe downstream state so stale items never appear
-                    if (key !== prevOccasion) {
+                    // If occasion changed, wipe downstream state
+                    if (key !== prevOccasion && prevOccasion !== undefined) {
                         Store.set('stylePersonality', []);
-                        const oldOutfit = Store.get('currentOutfit');
-                        const hadOutfit = oldOutfit && Object.values(oldOutfit).some(arr => arr.length > 0);
                         Store.set('currentOutfit', { topwear: [], outerwear: [], bottomwear: [], footwear: [], accessories: [] });
                         Store.set('itemColors', {});
-                        if (hadOutfit) App.showToast('Outfit selection reset for new occasion.');
                     }
                 }
 
                 Store.set('occasions', [...selected]);
                 btn.disabled = selected.size === 0;
+                const counterNum = document.getElementById('selection-counter-num');
+                if (counterNum) counterNum.innerText = selected.size > 0 ? '1' : '0';
 
-                // micro-interaction
-                if (card.classList.contains('selected-card')) {
-                    card.style.transform = 'scale(0.98)';
-                    setTimeout(() => { card.style.transform = ''; }, 100);
-                }
+                cards.forEach(c => {
+                    const isSelected = selected.has(c.dataset.occasion);
+                    if (isSelected) {
+                        c.className = 'selection-card group relative flex flex-col cursor-pointer transition-all duration-700 ease-[var(--ease-out-expo)] border-[4px] h-full w-full overflow-hidden active opacity-100 border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-10';
+                        const icon = c.querySelector('.material-symbols-outlined.text-brand');
+                        if (icon) {
+                            icon.classList.remove('opacity-0', 'scale-50');
+                            icon.classList.add('opacity-100', 'scale-100');
+                        }
+                    } else {
+                        c.className = 'selection-card group relative flex flex-col cursor-pointer transition-all duration-700 ease-[var(--ease-out-expo)] border-[4px] h-full w-full overflow-hidden opacity-80 border-transparent hover:opacity-100';
+                        const icon = c.querySelector('.material-symbols-outlined.text-brand');
+                        if (icon) {
+                            icon.classList.remove('opacity-100', 'scale-100');
+                            icon.classList.add('opacity-0', 'scale-50');
+                        }
+                    }
+                });
             });
         });
 
-        btn?.addEventListener('click', () => { if (selected.size > 0) Router.navigate('/style'); });
-
-        // Reveal animation
-        cards.forEach((card, i) => {
-            card.style.opacity = '0'; card.style.transform = 'translateY(20px)';
-            setTimeout(() => { card.style.transition = 'all 0.6s cubic-bezier(0.23, 1, 0.32, 1)'; card.style.opacity = '1'; card.style.transform = 'translateY(0)'; }, 80 * i);
+        btn?.addEventListener('click', () => {
+            if (!btn.disabled) {
+                window.Router.navigate('/style');
+            }
         });
     }
 

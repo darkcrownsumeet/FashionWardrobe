@@ -18,8 +18,7 @@ const Store = (() => {
             footwear: [],
             accessories: []
         },
-        itemColors: {},
-        budget: null
+        itemColors: {}
     };
 
     // --- Session State (quiz flow) ---

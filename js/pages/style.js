@@ -5,123 +5,281 @@ const StylePage = (() => {
     function render() {
         const gender = Store.get('gender') || 'female';
         const occasions = Store.get('occasions') || [];
-        const occasionKey = occasions.length > 0 ? occasions[0] : 'casual'; // Fallback
+        const occasionKey = occasions.length > 0 ? occasions[0] : 'casual';
         const styles = MockData.getStyles(gender, occasionKey);
         const validStyleKeys = styles.map(s => s.key);
         let saved = Store.get('stylePersonality') || [];
         saved = saved.filter(k => validStyleKeys.includes(k));
         Store.set('stylePersonality', saved);
+        
         const count = saved.length;
-        const cardsHtml = styles.map(s => {
-            let imgStyle = '';
-            if (gender === 'female' && occasionKey === 'casual') {
-                if (s.key === 'effortless-chic') {
-                    imgStyle = 'transform: scale(1.2) translate(8%, -5%) translateZ(0);';
+        
+        let pagesHtml = '';
+        for (let i = 0; i < styles.length; i += 2) {
+            const pair = styles.slice(i, i + 2);
+            const pageIdx = Math.floor(i / 2);
+            
+            const cardsInPage = pair.map((s, offsetIdx) => {
+                const idx = i + offsetIdx;
+                let imgStyle = '';
+                if (gender === 'female' && occasionKey === 'casual') {
+                    if (s.key === 'effortless-chic') imgStyle = 'transform: scale(1.2) translate(8%, -5%) translateZ(0);';
+                    if (s.key === 'cozy') imgStyle = 'object-position: center 0%;';
                 }
-                if (s.key === 'cozy') {
-                    imgStyle = 'object-position: center 0%;';
+                if (gender === 'female' && occasionKey === 'formal' && s.key === 'power-dressing') imgStyle = 'object-position: center 15%;';
+                if (gender === 'female' && occasionKey === 'gym') {
+                    if (s.key === 'high-intensity') imgStyle = 'object-position: center 0%;';
+                    if (s.key === 'athleisure') imgStyle = 'object-position: center 10%;';
                 }
-            }
-            if (gender === 'female' && occasionKey === 'formal') {
-                if (s.key === 'power-dressing') {
-                    imgStyle = 'object-position: center 15%;';
+                if (gender === 'female' && occasionKey === 'vacation') {
+                    if (s.key === 'resort-wear' || s.key === 'euro-summer') imgStyle = 'transform: scale(1.3) translateY(-10%) translateZ(0);';
                 }
-            }
-            if (gender === 'female' && occasionKey === 'gym') {
-                if (s.key === 'high-intensity') {
-                    imgStyle = 'object-position: center 0%;';
-                }
-                if (s.key === 'athleisure') {
-                    imgStyle = 'object-position: center 10%;';
-                }
-            }
-            if (gender === 'female' && occasionKey === 'vacation') {
-                if (s.key === 'resort-wear' || s.key === 'euro-summer') {
-                    imgStyle = 'transform: scale(1.3) translateY(-10%) translateZ(0);';
-                }
-            }
-            return `
-            <button class="group relative overflow-hidden rounded-xl style-card aspect-[4/5] bg-surface-container transition-all duration-500 ${saved.includes(s.key) ? 'active' : ''}" data-style="${s.key}">
-                <img style="${imgStyle}" class="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 group-[.active]:grayscale-0 transition-all duration-700 [transform:translateZ(0)] backface-hidden" src="${s.img}"/>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-                <div class="absolute bottom-6 left-6 text-left z-10">
-                    <span class="font-label-caps text-label-caps text-white block mb-2 opacity-80 uppercase">${s.sub}</span>
-                    <h3 class="font-headline-md text-headline-md text-white">${s.label}</h3>
-                </div>
-                <div class="absolute top-4 right-4 bg-white rounded-full p-1.5 opacity-0 group-[.active]:opacity-100 transition-opacity duration-300 shadow-xl z-20 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary text-[24px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                </div>
-            </button>
-        `}).join('');
+
+                const isSelected = saved.includes(s.key);
+                const classState = isSelected 
+                    ? 'opacity-100 border-[4px] border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-10 active' 
+                    : 'opacity-80 border-[4px] border-transparent hover:opacity-100';
+                const imgState = isSelected ? 'grayscale-0' : 'grayscale';
+                const iconState = isSelected ? 'opacity-100 scale-100' : 'opacity-0 scale-50';
+                
+                return `
+                <div class="selection-card group relative flex flex-col cursor-pointer transition-all duration-700 ease-[var(--ease-out-expo)] border-[4px] h-full w-full overflow-hidden ${classState}" data-style="${s.key}">
+                    <!-- Background Image -->
+                    <img alt="${s.label}" src="${s.img}" class="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-[var(--ease-out-expo)] group-hover:grayscale-0 group-[.active]:grayscale-0 ${imgState}" style="${imgStyle}">
+                    
+                    <!-- Gradients -->
+                    <div class="absolute top-0 inset-x-0 h-1/4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none"></div>
+                    <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+                    
+                    <!-- Top Number -->
+                    <div class="absolute top-6 left-6 font-mono text-[10px] text-white tracking-[0.3em] font-bold z-10">0${idx + 1}</div>
+                    
+                    <!-- Hover Hint -->
+                    <div class="absolute top-6 right-6 pointer-events-none z-20">
+                        <div class="text-white font-mono text-[10px] sm:text-xs uppercase tracking-widest flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-[-10px] group-hover:translate-y-0 group-[.active]:hidden font-bold drop-shadow-md">SELECT <span class="material-symbols-outlined text-[14px]">arrow_forward</span></div>
+                    </div>
+                    
+                    <!-- Top Right Icon -->
+                    <div class="absolute top-6 right-6 z-10 material-symbols-outlined text-brand transform transition-all duration-300 group-[.active]:opacity-100 group-[.active]:scale-100 ${iconState}">check_circle</div>
+                    
+                    <!-- Bottom Content -->
+                    <div class="absolute bottom-0 left-0 w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-1 z-10 transform translate-y-4 transition-transform duration-500 ease-[var(--ease-out-expo)] group-hover:translate-y-0 group-[.active]:translate-y-0">
+                        <span class="text-xl lg:text-3xl font-extrabold uppercase tracking-tighter text-white">${s.label}</span>
+                        <span class="font-mono text-[8px] lg:text-[10px] uppercase tracking-widest text-white/70">${s.sub}</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            pagesHtml += `
+            <div class="page-container absolute inset-0 p-4 lg:p-12 grid grid-cols-2 gap-4 lg:gap-10 transition-all duration-700 ease-[var(--ease-out-expo)]" data-page="${pageIdx}" style="opacity: ${pageIdx === 0 ? '0' : '0'}; transform: translateX(${pageIdx === 0 ? '12px' : '1.5rem'}); pointer-events: ${pageIdx === 0 ? 'auto' : 'none'};">
+                ${cardsInPage}
+            </div>`;
+        }
 
         return `
-<header class="fixed top-0 left-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-surface-container-highest px-4 sm:px-6 md:px-10 lg:px-16 py-4">
-    <div class="flex justify-between items-center max-w-[1440px] mx-auto w-full gap-4">
-        <span class="font-display-lg text-[18px] sm:text-[20px] uppercase tracking-[0.2em] text-primary cursor-pointer transition-opacity hover:opacity-70" onclick="Router.navigate('/landing')">FASHIONWARDROBE</span>
-        <div class="flex items-center gap-4 sm:gap-6">
-            <div class="hidden sm:flex items-center gap-2 bg-surface-container-low px-4 py-1.5 rounded-full border border-outline-variant/30">
-                <span class="font-label-caps text-primary text-[10px] tracking-[0.15em]">STEP 3 OF 7</span>
+<div class="h-screen w-screen bg-background text-foreground flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden">
+    <!-- Top Nav -->
+    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground bg-background px-6 py-4">
+        <div class="font-mono text-xs font-bold tracking-tighter cursor-pointer" onclick="window.Router.navigate('/landing')">
+            FASHIONWARDROBE<sup class="ml-1 text-brand">®</sup>
+        </div>
+        <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
+            <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 03 / 06</span>
+            <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground h-full overflow-hidden">
+        
+        <!-- Left Side: Copy -->
+        <div class="w-full lg:w-[35%] h-[30%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground p-6 lg:p-12 relative overflow-hidden">
+            <div class="mt-2 lg:mt-8 z-10">
+                <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand mb-2 lg:mb-6 block">Step 03 / 07</span>
+                <h1 class="text-3xl lg:text-[clamp(2.5rem,4vw,4.5rem)] font-extrabold uppercase leading-[0.85] tracking-tighter font-sans antialiased mb-2 lg:mb-6">
+                    What's your<br>
+                    <span class="text-brand">vibe</span>?
+                </h1>
+                <div class="flex gap-4 items-start mb-12">
+                    <div class="w-1 h-full bg-foreground/10 flex-shrink-0 mt-2"></div>
+                    <p class="font-mono text-[10px] lg:text-xs leading-relaxed text-muted max-w-sm uppercase tracking-widest hidden sm:block">
+                        Select the aesthetic that resonates with your personal style. Multiple allowed.
+                    </p>
+                </div>
+
+                <!-- Prominent Counter -->
+                <div class="inline-flex items-center gap-4 px-6 py-4 border-[2px] border-foreground bg-background shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] w-fit transition-all duration-300" id="selection-counter-box">
+                    <div class="flex items-baseline gap-1">
+                        <span class="font-mono text-3xl font-black text-brand" id="selection-counter-num">${count}</span>
+                    </div>
+                    <div class="w-px h-8 bg-foreground/20"></div>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">SELECTED</span>
+                </div>
             </div>
-            <button class="w-10 h-10 rounded-full flex items-center justify-center bg-surface-container-low hover:bg-surface-container transition-colors border border-outline-variant/30 text-primary group" onclick="Router.navigate('/landing')">
-                <span class="material-symbols-outlined text-[18px] group-hover:rotate-90 transition-transform duration-300">close</span>
+        </div>
+
+        <!-- Right Side: Cards -->
+        <div id="lookbook-container" class="w-full lg:w-[65%] h-[70%] lg:h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwgMCwgMCwgMC4wNSkiLz48L3N2Zz4=')] overflow-hidden relative">
+            <!-- Carousel Arrows -->
+            <button id="prev-btn" class="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-2xl">chevron_left</span>
+            </button>
+            <button id="next-btn" class="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-2xl">chevron_right</span>
+            </button>
+            
+            ${pagesHtml}
+            
+            <!-- Carousel Dots -->
+            <div id="carousel-dots" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2">
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Bar -->
+    <footer class="bg-background flex flex-col md:flex-row items-stretch border-t border-foreground shrink-0 z-50 relative">
+        <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground">
+            <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted hover:text-foreground transition-colors flex items-center group" onclick="window.Router.navigate('/occasion')">
+                <span class="material-symbols-outlined text-[14px] mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span> BACK
             </button>
         </div>
-    </div>
-    <div class="absolute bottom-0 left-0 w-full bg-surface-container-highest h-[3px] overflow-hidden">
-        <div class="progress-bar-fill bg-gradient-to-r from-primary to-primary/70 h-full shadow-[0_0_10px_rgba(0,0,0,0.5)] transition-all duration-1000 ease-out" style="width: 42.8%;"></div>
-    </div>
-</header>
-<main class="flex-grow px-4 sm:px-6 md:px-10 lg:px-16 max-w-7xl mx-auto w-full flex flex-col items-center justify-center min-h-[100dvh] pt-[100px] pb-32 md:pb-40">
-    <section class="text-center mb-6 lg:mb-8 w-full mt-auto">
-        <h1 class="font-['Playfair_Display'] font-medium text-primary text-[36px] lg:text-[48px] leading-tight tracking-tight mb-2">What matches your <span class="italic font-light">vibe</span>?</h1>
-        <p class="font-['Inter'] text-[14px] lg:text-[15px] text-secondary max-w-[500px] mx-auto font-light">Select the aesthetic that resonates with your personal style.</p>
-    </section>
-    <div class="w-full grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6 mb-auto">${cardsHtml}</div>
-</main>
-<footer class="fixed bottom-0 left-0 w-full z-40 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-0" id="floating-footer">
-    <div class="bg-white/70 backdrop-blur-2xl border-t border-surface-container-highest shadow-[0_-10px_40px_rgba(0,0,0,0.05)] py-4 sm:py-6 px-4 sm:px-6 md:px-10 lg:px-16">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
-            <button class="w-full sm:w-auto font-button text-[12px] tracking-[0.15em] text-secondary hover:text-primary transition-colors flex items-center justify-center group" onclick="Router.navigate('/occasion')">
-                <span class="material-symbols-outlined text-[16px] mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span> BACK
-            </button>
-            <button class="w-full sm:w-auto bg-primary text-on-primary font-button px-12 py-4 uppercase tracking-[0.15em] transition-all duration-500 hover:bg-tertiary-container disabled:opacity-30 disabled:cursor-not-allowed whitespace-nowrap group flex items-center justify-center" id="continue-btn" ${count > 0 ? '' : 'disabled'}>
-                <span id="btn-text">${count > 0 ? `Continue with ${count} style${count > 1 ? 's' : ''}` : 'Continue'}</span>
-                <span class="material-symbols-outlined text-[16px] inline-block ml-3 group-hover:translate-x-1 transition-transform">arrow_forward</span>
-            </button>
-        </div>
-    </div>
-</footer>`;
+        <button id="next-btn-main" class="flex-1 bg-brand text-brand-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed group flex items-center justify-center gap-4" ${count > 0 ? '' : 'disabled'}>
+            Continue to Base Layer
+            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+        </button>
+    </footer>
+</div>
+        `;
     }
 
     function init() {
-        const cards = document.querySelectorAll('[data-style]');
-        const btn = document.getElementById('continue-btn');
+        const cards = document.querySelectorAll('.selection-card');
+        const pages = document.querySelectorAll('.page-container');
+        const btn = document.getElementById('next-btn-main');
+        const dotsContainer = document.getElementById('carousel-dots');
+        
         let selected = new Set(Store.get('stylePersonality') || []);
+        let currentPage = 0;
+        const totalPages = pages.length;
+        let isAnimating = false;
+
+        const prevBtn = document.getElementById('prev-btn');
+        const nxtBtn = document.getElementById('next-btn');
+
+        if(totalPages > 1) {
+            dotsContainer.innerHTML = Array.from({length: totalPages}).map((_, i) => 
+                `<div class="w-2 h-2 rounded-full border border-foreground transition-colors ${i === 0 ? 'bg-foreground' : 'bg-transparent'}"></div>`
+            ).join('');
+        }
+        const dots = dotsContainer.querySelectorAll('div');
+
+        function updatePageState() {
+            if(totalPages > 1) {
+                dots.forEach((d, i) => {
+                    d.className = `w-2 h-2 rounded-full border border-foreground transition-colors ${i === currentPage ? 'bg-foreground' : 'bg-transparent'}`;
+                });
+                prevBtn.disabled = currentPage === 0;
+                nxtBtn.disabled = currentPage === totalPages - 1;
+            } else {
+                if(prevBtn) prevBtn.disabled = true;
+                if(nxtBtn) nxtBtn.disabled = true;
+            }
+            
+            pages.forEach((page, idx) => {
+                if (idx === currentPage) {
+                    page.style.opacity = '1';
+                    page.style.transform = 'translateX(0)';
+                    page.style.pointerEvents = 'auto';
+                } else if (idx < currentPage) {
+                    page.style.opacity = '0';
+                    page.style.transform = 'translateX(-1.5rem)';
+                    page.style.pointerEvents = 'none';
+                } else {
+                    page.style.opacity = '0';
+                    page.style.transform = 'translateX(1.5rem)';
+                    page.style.pointerEvents = 'none';
+                }
+            });
+        }
+
+        function nextPage() {
+            if (isAnimating || currentPage >= totalPages - 1) return;
+            isAnimating = true;
+            currentPage++;
+            updatePageState();
+            setTimeout(() => isAnimating = false, 700);
+        }
+
+        function prevPage() {
+            if (isAnimating || currentPage <= 0) return;
+            isAnimating = true;
+            currentPage--;
+            updatePageState();
+            setTimeout(() => isAnimating = false, 700);
+        }
+
+        if(prevBtn) prevBtn.addEventListener('click', prevPage);
+        if(nxtBtn) nxtBtn.addEventListener('click', nextPage);
+
+        updatePageState();
+
+        setTimeout(() => {
+            cards.forEach((c, i) => {
+                const cardPage = Math.floor(i / 2);
+                if (cardPage === currentPage) {
+                    c.style.transform = 'translateX(12px)';
+                    c.style.opacity = '0';
+                    setTimeout(() => {
+                        c.style.transform = 'translateX(0)';
+                        c.style.opacity = selected.has(c.dataset.style) ? '1' : '0.8';
+                    }, (i % 2) * 100);
+                }
+            });
+        }, 50);
 
         cards.forEach(card => {
             card.addEventListener('click', () => {
                 const key = card.dataset.style;
-                const wasSelected = selected.has(key);
-                if (wasSelected) { selected.delete(key); card.classList.remove('active'); }
-                else {
-                    const prevStyles = Store.get('stylePersonality') || [];
+
+                // Toggle logic
+                if (selected.has(key)) {
+                    selected.delete(key);
+                } else {
                     selected.add(key);
-                    card.classList.add('active');
-                    
-                    // Only wipe outfit if this is the very first style being selected
-                    // (prevent wiping if user goes back just to add a 2nd style)
-                    if (prevStyles.length === 0) {
-                        Store.set('currentOutfit', { topwear: [], outerwear: [], bottomwear: [], footwear: [], accessories: [] });
-                        Store.set('itemColors', {});
+                }
+
+                Store.set('stylePersonality', [...selected]);
+                
+                if(btn) btn.disabled = selected.size === 0;
+                
+                const counterNum = document.getElementById('selection-counter-num');
+                if (counterNum) counterNum.innerText = selected.size;
+
+                if (selected.has(key)) {
+                    card.className = 'selection-card group relative flex flex-col cursor-pointer transition-all duration-700 ease-[var(--ease-out-expo)] border-[4px] h-full w-full overflow-hidden active opacity-100 border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)] z-10';
+                    const icon = card.querySelector('.material-symbols-outlined.text-brand');
+                    if(icon) {
+                        icon.classList.remove('opacity-0', 'scale-50');
+                        icon.classList.add('opacity-100', 'scale-100');
+                    }
+                } else {
+                    card.className = 'selection-card group relative flex flex-col cursor-pointer transition-all duration-700 ease-[var(--ease-out-expo)] border-[4px] h-full w-full overflow-hidden opacity-80 border-transparent hover:opacity-100';
+                    const icon = card.querySelector('.material-symbols-outlined.text-brand');
+                    if(icon) {
+                        icon.classList.remove('opacity-100', 'scale-100');
+                        icon.classList.add('opacity-0', 'scale-50');
                     }
                 }
-                Store.set('stylePersonality', [...selected]);
-                btn.disabled = selected.size === 0;
-                document.getElementById('btn-text').innerText = selected.size > 0 ? `Continue with ${selected.size} style${selected.size > 1 ? 's' : ''}` : 'Continue';
             });
         });
 
-        btn?.addEventListener('click', () => { if (selected.size > 0) Router.navigate('/outfit'); });
+        btn?.addEventListener('click', () => {
+            if (!btn.disabled) {
+                window.Router.navigate('/outfit');
+            }
+        });
     }
 
     return { render, init };

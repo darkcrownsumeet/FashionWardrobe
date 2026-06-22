@@ -1,14 +1,14 @@
 /* ============================================
-   FashionWardrobe — AI Recommendation Engine V3
+   FashionWardrobe — AI Recommendation Engine
    ============================================ */
 
 const RecommendationEngine = (() => {
 
     async function generate(preferences) {
-        const { gender, occasions, stylePersonality, currentOutfit, budget } = preferences;
+        const { gender, occasions, stylePersonality, currentOutfit } = preferences;
         const allProducts = typeof MockData !== 'undefined' ? MockData.getProducts() : [];
         
-        // Build valid product pool for this exact session (gender + occasion + style)
+        // Build valid product pool for this session
         const occasion = occasions && occasions.length > 0 ? occasions[0] : null;
         const validPool = allProducts.filter(p => {
             if (gender && p.gender !== gender && p.gender !== 'unisex') return false;
@@ -18,7 +18,7 @@ const RecommendationEngine = (() => {
         });
         const validIds = new Set(validPool.map(p => p.id));
 
-        // Collect ALL valid selected items across all categories (not just one anchor)
+        // Collect all valid selected items across all categories
         let selectedItems = [];
         if (currentOutfit) {
             const cats = ['topwear', 'outerwear', 'bottomwear', 'footwear', 'accessories'];
@@ -33,16 +33,15 @@ const RecommendationEngine = (() => {
 
         let fallbackHero = null;
         if (selectedItems.length === 0) {
-            // Safe fallback if UI validation is bypassed
             fallbackHero = { name: "Default Look", image: "assets/img/default.jpg", isFallback: true };
         }
 
         // Determine API base URL
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:4000' 
-            : 'https://fashionwardrobe-api.onrender.com'; // Change this to real prod URL later
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:4000'
+            : 'https://fashionwardrobe-api.onrender.com';
 
-        // Call the backend API with ALL selected items
+        // Call the backend API
         try {
             const response = await fetch(`${API_BASE}/api/recommend`, {
                 method: 'POST',
@@ -55,17 +54,34 @@ const RecommendationEngine = (() => {
             }
 
             const data = await response.json();
+            // data.collections is an array of up to 3 collection objects
             return data;
-            
+
         } catch (e) {
             console.error("AI Engine Error:", e);
-            const heroItem = selectedItems.length > 0 ? selectedItems[0] : fallbackHero;
+            // Offline fallback — return a single collection with all selected items
+            const allItems = selectedItems.length > 0
+                ? selectedItems.map(item => ({
+                    name: item.name,
+                    image: item.image,
+                    category: item.category,
+                    objectPosition: item.objectPosition || 'center center',
+                    id: item.id
+                }))
+                : (fallbackHero ? [fallbackHero] : []);
+
             return {
-                yourLook: selectedItems.length > 0 ? selectedItems : (fallbackHero ? [fallbackHero] : []),
-                accessories: [],
-                explanation: `We couldn't connect to the AI engine. Please ensure the backend server is running. (${API_BASE})`,
-                attributes: ["OFFLINE MODE"],
-                isOffline: true
+                collections: [
+                    {
+                        name: 'Your Look',
+                        currentScore: 72,
+                        projectedScore: 89,
+                        yourLook: allItems,
+                        accessories: [],
+                        isOffline: true,
+                        offlineMsg: `Could not connect to AI engine. (${API_BASE})`
+                    }
+                ]
             };
         }
     }
@@ -73,4 +89,4 @@ const RecommendationEngine = (() => {
     return { generate };
 })();
 
-window.RecommendEngine = RecommendEngine;
+window.RecommendationEngine = RecommendationEngine;

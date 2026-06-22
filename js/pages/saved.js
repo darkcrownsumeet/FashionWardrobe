@@ -129,11 +129,6 @@ const SavedPage = (() => {
                         Store.set(key, outfit.preferences[key]);
                     });
                     
-                    // Bypass Router Guard
-                    if (!Store.get('budget')) {
-                        Store.set('budget', 'Mid-range');
-                    }
-                    
                     App.showToast('Restyling saved look...');
                     Router.navigate('/results');
                 }
