@@ -168,6 +168,9 @@ const ColorPage = (() => {
         </div>
         <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 05 / 06</span>
+            <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startColorTour()" title="Replay Walkthrough">
+                <span class="material-symbols-outlined text-[14px]">help</span>
+            </button>
             <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
                 <span class="material-symbols-outlined text-[14px]">close</span>
             </button>
@@ -214,7 +217,7 @@ const ColorPage = (() => {
             </button>
         </div>
         <button id="continue-btn" class="flex-1 bg-brand text-brand-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:opacity-90 group flex items-center justify-center gap-4">
-            Finish & Match
+            Finish & Curate
             <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">auto_awesome</span>
         </button>
     </footer>
@@ -244,6 +247,13 @@ const ColorPage = (() => {
     }
 
     function init() {
+        setTimeout(() => {
+            if (!localStorage.getItem('fw_has_seen_color_tour')) {
+                localStorage.setItem('fw_has_seen_color_tour', 'true');
+                if (window.Walkthrough) window.Walkthrough.startColorTour();
+            }
+        }, 500);
+
         // Destroy old pickers to prevent memory leaks
         if (window.activePickers) {
             window.activePickers.forEach(p => p.destroyAndRemove());

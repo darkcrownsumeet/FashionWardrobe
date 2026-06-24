@@ -19,6 +19,9 @@ window.GenderPage = (function() {
         </div>
         <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 01 / 06</span>
+            <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startGenderTour()" title="Replay Walkthrough">
+                <span class="material-symbols-outlined text-[14px]">help</span>
+            </button>
             <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
                 <span class="material-symbols-outlined text-[14px]">close</span>
             </button>
@@ -42,7 +45,7 @@ window.GenderPage = (function() {
                 <div class="flex gap-4 items-start mb-12">
                     <div class="w-1 h-full bg-foreground/10 flex-shrink-0 mt-2"></div>
                     <p class="font-mono text-[10px] lg:text-xs leading-relaxed text-muted max-w-sm uppercase tracking-widest hidden sm:block">
-                        Choose a style profile to begin your curated journey. The algorithm adapts to your base selection.
+                        Choose a style profile to begin your curated journey. Our styling engine adapts to your base selection.
                     </p>
                 </div>
 
@@ -146,6 +149,23 @@ window.GenderPage = (function() {
         }, 50);
 
         let saved = Store.get('gender');
+
+        document.getElementById('continue-btn')?.addEventListener('click', () => {
+            const saved = Store.get('gender');
+            if (!saved) {
+                App.showToast('Please select an option to continue.', 'error');
+                return;
+            }
+            Router.navigate('/occasion');
+        });
+
+        // Trigger the second part of the walkthrough if they came from landing tour
+        setTimeout(() => {
+            if (!localStorage.getItem('fw_has_seen_gender_tour')) {
+                localStorage.setItem('fw_has_seen_gender_tour', 'true');
+                if (window.Walkthrough) window.Walkthrough.startGenderTour();
+            }
+        }, 500);
 
         cards.forEach(card => {
             card.addEventListener('click', () => {

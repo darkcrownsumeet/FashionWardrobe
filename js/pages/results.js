@@ -1,5 +1,5 @@
 /* ============================================
-   FashionWardrobe — AI Match Results (Step 6)
+   FashionWardrobe — Style Curation Results (Step 6)
    ============================================ */
 const ResultsPage = (() => {
 
@@ -45,7 +45,7 @@ const ResultsPage = (() => {
         const container = document.getElementById('results-wrapper');
         
         // Cycle loading messages
-        const messages = ["Analyzing style DNA...", "Checking color harmony...", "Generating text suggestions...", "Finalizing analysis..."];
+        const messages = ["Curating style profile...", "Checking color harmony...", "Preparing style suggestions...", "Finalizing lookbook..."];
         let msgIndex = 0;
         const msgInterval = setInterval(() => {
             const el = document.getElementById('loading-text');
@@ -126,7 +126,7 @@ const ResultsPage = (() => {
                     </div>
                 </div>
 
-                <!-- Right Side: AI Suggestions -->
+                <!-- Right Side: Style Suggestions -->
                 <div class="w-full lg:w-[65%] h-[60%] lg:h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwgMCwgMCwgMC4wNSkiLz48L3N2Zz4=')] overflow-y-auto p-6 lg:p-12 relative">
                     
                     <div class="flex flex-col sm:flex-row sm:items-end justify-between border-b-[2px] border-foreground pb-6 mb-10 gap-6">
@@ -178,7 +178,7 @@ const ResultsPage = (() => {
                                     <div class="flex items-start gap-3">
                                         <span class="material-symbols-outlined text-[16px] text-foreground/30 mt-0.5">cancel</span>
                                         <div class="flex flex-col">
-                                            <span class="font-mono text-[9px] uppercase tracking-widest font-bold mb-1">AVOID</span>
+                                            <span class="font-mono text-[9px] uppercase tracking-widest font-bold mb-1">LESS RECOMMENDED</span>
                                             <span class="font-mono text-xs text-muted-foreground">${(acc.colors.avoid || []).join(', ')}</span>
                                         </div>
                                     </div>
@@ -199,7 +199,7 @@ const ResultsPage = (() => {
                 </div>
                 <div class="flex-1 flex items-stretch">
                     <button class="flex-1 bg-background text-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:bg-foreground/5 border-r border-foreground flex items-center justify-center gap-3" onclick="Store.clearSession(); window.Router.navigate('/gender')">
-                        <span class="material-symbols-outlined">restart_alt</span> Start Fresh
+                        <span class="material-symbols-outlined">restart_alt</span> Create New Look
                     </button>
                     <button id="save-look-btn" class="flex-1 bg-brand text-brand-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:opacity-90 flex items-center justify-center gap-3 group">
                         <span class="material-symbols-outlined group-hover:-translate-y-1 transition-transform">bookmark</span> Save Look

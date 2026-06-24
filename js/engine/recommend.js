@@ -53,12 +53,43 @@ const RecommendationEngine = (() => {
                 throw new Error('Failed to fetch recommendations from backend');
             }
 
-            const data = await response.json();
-            // data.collections is an array of up to 3 collection objects
-            return data;
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            let dataObj = null;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+                
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const parsed = JSON.parse(line.substring(6));
+                            if (parsed.status) {
+                                // Emit progress update
+                                document.dispatchEvent(new CustomEvent('recommendation-progress', { detail: parsed.status }));
+                            }
+                            if (parsed.result) {
+                                dataObj = parsed.result;
+                            }
+                            if (parsed.error) {
+                                throw new Error(parsed.error);
+                            }
+                        } catch(e) {
+                            // ignore parse errors for partial chunks
+                        }
+                    }
+                }
+            }
+
+            if (!dataObj) throw new Error("Stream ended without result");
+            return dataObj;
 
         } catch (e) {
-            console.error("AI Engine Error:", e);
+            console.error("Styling Engine Error:", e);
             // Offline fallback — return a single collection with all selected items
             const allItems = selectedItems.length > 0
                 ? selectedItems.map(item => ({

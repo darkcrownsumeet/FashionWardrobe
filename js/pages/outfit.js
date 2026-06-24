@@ -128,6 +128,9 @@ const OutfitPage = (() => {
         </div>
         <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 04 / 06</span>
+            <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startOutfitTour()" title="Replay Walkthrough">
+                <span class="material-symbols-outlined text-[14px]">help</span>
+            </button>
             <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
                 <span class="material-symbols-outlined text-[14px]">close</span>
             </button>
@@ -233,6 +236,13 @@ const OutfitPage = (() => {
     }
 
     function init() {
+        setTimeout(() => {
+            if (!localStorage.getItem('fw_has_seen_outfit_tour')) {
+                localStorage.setItem('fw_has_seen_outfit_tour', 'true');
+                if (window.Walkthrough) window.Walkthrough.startOutfitTour();
+            }
+        }, 500);
+
         // Carousel states per category
         const catSections = document.querySelectorAll('.category-section');
         let activeCatId = null;

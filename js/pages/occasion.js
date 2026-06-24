@@ -62,6 +62,9 @@ const OccasionPage = (() => {
         </div>
         <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
             <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 02 / 06</span>
+            <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startOccasionTour()" title="Replay Walkthrough">
+                <span class="material-symbols-outlined text-[14px]">help</span>
+            </button>
             <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
                 <span class="material-symbols-outlined text-[14px]">close</span>
             </button>
@@ -126,7 +129,7 @@ const OccasionPage = (() => {
             </button>
         </div>
         <button id="next-btn-main" class="flex-1 bg-brand text-brand-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed group flex items-center justify-center gap-4" ${saved.length > 0 ? '' : 'disabled'}>
-            Continue to Match
+            Continue to Curation
             <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
         </button>
     </footer>
@@ -135,6 +138,13 @@ const OccasionPage = (() => {
     }
 
     function init() {
+        setTimeout(() => {
+            if (!localStorage.getItem('fw_has_seen_occasion_tour')) {
+                localStorage.setItem('fw_has_seen_occasion_tour', 'true');
+                if (window.Walkthrough) window.Walkthrough.startOccasionTour();
+            }
+        }, 500);
+
         const cards = document.querySelectorAll('.selection-card');
         const pages = document.querySelectorAll('.page-container');
         const btn = document.getElementById('next-btn-main');

@@ -1,5 +1,5 @@
 /* ============================================
-   FashionWardrobe — AI Match Results (Multi-Collection)
+   FashionWardrobe — Style Curation Results (Multi-Collection)
    ============================================ */
 const ResultsPage = (() => {
 
@@ -210,36 +210,6 @@ const ResultsPage = (() => {
         });
     }
 
-    function animateScore(elId, targetScore) {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        let current = parseInt(el.textContent || '0');
-        if (isNaN(current)) current = 0;
-        if (current === targetScore) return;
-
-        const duration = 1000;
-        const startTime = performance.now();
-        const startScore = current;
-
-        function update(currentTime) {
-            const elapsed = currentTime - startTime;
-            const progress = Math.min(elapsed / duration, 1);
-            
-            // easeOutQuart
-            const ease = 1 - Math.pow(1 - progress, 4);
-            const currentVal = Math.round(startScore + (targetScore - startScore) * ease);
-            
-            el.textContent = currentVal;
-            
-            if (progress < 1) {
-                requestAnimationFrame(update);
-            } else {
-                el.textContent = targetScore;
-            }
-        }
-        requestAnimationFrame(update);
-    }
-
     const dbName = 'fashion_wardrobe_db';
     let db;
     let selectedItemIds = [];
@@ -247,49 +217,6 @@ const ResultsPage = (() => {
     
     // External Color Database
     let externalColorMap = {};
-
-    function switchCollection(idx) {
-        // Update tabs
-        document.querySelectorAll('.collection-tab').forEach((tab, i) => {
-            const dot = tab.querySelector('.status-dot');
-            if (i === idx) {
-                tab.classList.add('border-brand', 'text-brand');
-                tab.classList.remove('border-foreground/20', 'text-muted-foreground');
-                if(dot) dot.classList.replace('bg-transparent', 'bg-brand');
-            } else {
-                tab.classList.remove('border-brand', 'text-brand');
-                tab.classList.add('border-foreground/20', 'text-muted-foreground');
-                if(dot) dot.classList.replace('bg-brand', 'bg-transparent');
-            }
-        });
-
-        // Switch views based on data-collection-idx attribute
-        document.querySelectorAll('.collection-view').forEach((view) => {
-            const viewIdx = parseInt(view.getAttribute('data-collection-idx'));
-            if (viewIdx === idx) {
-                view.classList.remove('hidden');
-                view.classList.add('active-collection', 'flex');
-                
-                // Activate first category tab within this view
-                const firstCatBtn = view.querySelector('.res-cat-link');
-                if (firstCatBtn && view.classList.contains('lg:w-[35%]')) {
-                    const targetId = firstCatBtn.getAttribute('onclick').match(/'([^']+)'/)[1];
-                    activateCategory(targetId, firstCatBtn);
-                }
-            } else {
-                view.classList.add('hidden');
-                view.classList.remove('active-collection', 'flex');
-            }
-        });
-
-        // Animate scores
-        const col = currentCollections[idx];
-        if (col) {
-            // Find the visible score elements
-            document.querySelectorAll(`.collection-view[data-collection-idx="${idx}"] #current-score-val`).forEach(el => animateScoreEl(el, col.currentScore || 70));
-            document.querySelectorAll(`.collection-view[data-collection-idx="${idx}"] #projected-score-val`).forEach(el => animateScoreEl(el, col.projectedScore || 90));
-        }
-    }
 
     function animateScoreEl(el, targetScore) {
         if (!el) return;
@@ -333,8 +260,8 @@ const ResultsPage = (() => {
         const prefs = Store.getAll();
         const container = document.getElementById('results-wrapper');
         
-        // Cycle loading messages
-        const messages = ["Analyzing style DNA...", "Testing combinations...", "Evaluating color harmony...", "Generating collections..."];
+        // Cycle loading messages (will be overridden by SSE)
+        const messages = ["Curating style profile...", "Testing combinations...", "Evaluating color harmony...", "Generating collections..."];
         let msgIndex = 0;
         const msgInterval = setInterval(() => {
             const el = document.getElementById('loading-text');
@@ -348,9 +275,23 @@ const ResultsPage = (() => {
             }
         }, 2000);
 
+        const progressHandler = (e) => {
+            clearInterval(msgInterval);
+            const el = document.getElementById('loading-text');
+            if (el) {
+                el.style.opacity = 0;
+                setTimeout(() => {
+                    el.textContent = e.detail;
+                    el.style.opacity = 1;
+                }, 300);
+            }
+        };
+        document.addEventListener('recommendation-progress', progressHandler);
+
         try {
             const result = await RecommendationEngine.generate(prefs);
             clearInterval(msgInterval);
+            document.removeEventListener('recommendation-progress', progressHandler);
             
             const collections = result.collections || [];
             currentCollections = collections;
@@ -404,7 +345,7 @@ const ResultsPage = (() => {
                     </div>
                 </div>
 
-                <!-- Right Side: AI Suggestions -->
+                <!-- Right Side: Style Suggestions -->
                 <div class="collection-view ${idx === 0 ? 'flex' : 'hidden'} w-full lg:w-[65%] h-[60%] lg:h-full flex-col bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwgMCwgMCwgMC4wNSkiLz48L3N2Zz4=')] overflow-y-auto p-6 lg:p-12 relative" data-collection-idx="${idx}">
                     
                     <div class="flex flex-col xl:flex-row xl:items-end justify-between border-b-[2px] border-foreground pb-6 mb-10 gap-6">
@@ -437,9 +378,16 @@ const ResultsPage = (() => {
                     </div>
 
                     <div class="flex flex-col gap-8 pb-12">
-                        <!-- AI Suggestions -->
-                        ${(col.accessories || []).map((acc, i) => `
-                            <div class="border-[2px] border-foreground bg-background p-6 lg:p-8 flex flex-col relative transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+                        ${col.isOffline ? `
+                        <div class="border border-red-500/50 bg-red-500/5 p-6 lg:p-8 flex flex-col relative transition-all shadow-[8px_8px_0px_0px_rgba(239,68,68,1)]">
+                            <span class="font-mono text-[10px] text-red-500 tracking-widest uppercase mb-2 block">OFFLINE MODE</span>
+                            <h3 class="font-sans font-extrabold text-2xl uppercase tracking-tighter mb-4 leading-tight text-red-500">AI Engine Unavailable</h3>
+                            <p class="font-mono text-xs text-foreground/80 leading-relaxed max-w-2xl">${col.offlineMsg || 'Could not connect to the styling engine. Showing base items only.'}</p>
+                        </div>
+                        ` : ''}
+
+                        ${col.accessories && col.accessories.length > 0 ? col.accessories.map((acc, i) => `
+                            <div class="border-[2px] border-foreground bg-background p-6 lg:p-8 flex flex-col relative transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-2 hover:translate-y-2">
                                 <div class="absolute top-6 right-6 font-mono text-[10px] text-muted-foreground tracking-[0.3em] font-bold">0${i + 1}</div>
                                 
                                 <span class="font-mono text-[10px] text-brand tracking-widest uppercase mb-2 block">${acc.category || 'Recommended'}</span>
@@ -450,19 +398,23 @@ const ResultsPage = (() => {
                                 <div class="flex flex-col gap-3 pt-4 border-t border-foreground/20">
                                     ${acc.colors.match && acc.colors.match.length > 0 ? `
                                     <div class="flex items-center gap-3 flex-wrap">
-                                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground/50 w-16">MATCH</span>
+                                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground/50 w-16">WORKS WELL WITH</span>
                                         ${acc.colors.match.map(c => `<span class="font-mono text-[10px] uppercase border px-2 py-1 shadow-sm font-bold rounded-sm" style="${_getColorStyle(c) || 'background-color: transparent; border-color: rgba(0,0,0,0.2);'}">${c}</span>`).join('')}
                                     </div>` : ''}
                                     
                                     ${acc.colors.avoid && acc.colors.avoid.length > 0 ? `
                                     <div class="flex items-center gap-3 flex-wrap">
-                                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-red-500/50 w-16">AVOID</span>
+                                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-red-500/50 w-16">LESS RECOMMENDED</span>
                                         ${acc.colors.avoid.map(c => `<span class="font-mono text-[10px] uppercase border px-2 py-1 shadow-sm font-bold rounded-sm" style="${_getColorStyle(c) || 'background-color: transparent; border-color: rgba(239,68,68,0.2); color: rgb(220,38,38);'}">${c}</span>`).join('')}
                                     </div>` : ''}
                                 </div>
                                 ` : ''}
                             </div>
-                        `).join('')}
+                        `).join('') : (col.isOffline ? '' : `
+                            <div class="border border-foreground/20 bg-foreground/5 p-6 lg:p-8 flex items-center justify-center text-center">
+                                <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground font-bold">No additional accessories recommended</span>
+                            </div>
+                        `)}
                     </div>
                 </div>
                 `;
@@ -476,6 +428,9 @@ const ResultsPage = (() => {
                 </div>
                 <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
                     <span class="hidden sm:inline-block border border-foreground px-3 py-1 bg-brand text-brand-foreground font-bold">ANALYSIS COMPLETE</span>
+                    <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startResultsTour()" title="Replay Walkthrough">
+                        <span class="material-symbols-outlined text-[14px]">help</span>
+                    </button>
                     <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
                         <span class="material-symbols-outlined text-[14px]">close</span>
                     </button>
@@ -501,7 +456,7 @@ const ResultsPage = (() => {
                 </div>
                 <div class="flex-1 flex items-stretch">
                     <button class="flex-1 bg-background text-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:bg-foreground/5 border-r border-foreground flex items-center justify-center gap-3" onclick="Store.clearSession(); window.Router.navigate('/gender')">
-                        <span class="material-symbols-outlined">restart_alt</span> Start Fresh
+                        <span class="material-symbols-outlined">restart_alt</span> Create New Look
                     </button>
                     <button id="save-look-btn" class="flex-1 bg-brand text-brand-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:opacity-90 flex items-center justify-center gap-3 group">
                         <span class="material-symbols-outlined group-hover:-translate-y-1 transition-transform">bookmark</span> Save Look
@@ -525,8 +480,19 @@ const ResultsPage = (() => {
 
             // Initialize UI for first collection
             if (collections.length > 0) {
-                switchCollection(0);
+                if(window.ResultsPage && window.ResultsPage.switchCollection) {
+                    window.ResultsPage.switchCollection(0);
+                } else {
+                    switchCollectionInternal(0);
+                }
             }
+
+            setTimeout(() => {
+                if (!localStorage.getItem('fw_has_seen_results_tour')) {
+                    localStorage.setItem('fw_has_seen_results_tour', 'true');
+                    if (window.Walkthrough) window.Walkthrough.startResultsTour();
+                }
+            }, 1000);
 
             // Bind global carousel arrow events via event delegation
             container.addEventListener('click', (e) => {
@@ -565,9 +531,10 @@ const ResultsPage = (() => {
                     name: lookName,
                     image: col.yourLook[0]?.image || '',
                     score: col.projectedScore,
+                    currentScore: col.currentScore,
                     items: [
-                        ...(col.yourLook || []).map(i => ({ name: i.name, price: 0, image: i.image })),
-                        ...(col.accessories || []).map(a => ({ name: a.name, price: a.price || 0, image: a.image || '' }))
+                        ...(col.yourLook || []).map(i => ({ ...i })),
+                        ...(col.accessories || []).map(a => ({ ...a, category: a.category || 'accessories', isAccessory: true }))
                     ],
                     preferences: prefs
                 });
@@ -603,7 +570,62 @@ const ResultsPage = (() => {
         }
     }
 
-    return { render, init, _retryInit, activateCategory, switchCollection };
+    function switchCollectionInternal(idx) {
+        document.querySelectorAll('.collection-tab').forEach((t, i) => {
+            if (i === idx) {
+                t.classList.add('border-brand', 'text-brand');
+                t.classList.remove('border-foreground/20', 'text-muted-foreground');
+                t.querySelector('.status-dot')?.classList.replace('bg-transparent', 'bg-brand');
+            } else {
+                t.classList.remove('border-brand', 'text-brand');
+                t.classList.add('border-foreground/20', 'text-muted-foreground');
+                t.querySelector('.status-dot')?.classList.replace('bg-brand', 'bg-transparent');
+            }
+        });
+
+        document.querySelectorAll('.collection-view').forEach((v) => {
+            const viewIdx = parseInt(v.getAttribute('data-collection-idx'));
+            if (viewIdx === idx) {
+                v.classList.remove('hidden');
+                v.classList.add('flex', 'active-collection');
+                
+                const firstCatTab = v.querySelector('.res-cat-link');
+                if (firstCatTab) firstCatTab.click();
+            } else {
+                v.classList.add('hidden');
+                v.classList.remove('flex', 'active-collection');
+            }
+        });
+
+        const col = currentCollections[idx];
+        if (col) {
+            // Animate scores
+            document.querySelectorAll(`.collection-view[data-collection-idx="${idx}"] #current-score-val`).forEach(el => animateScoreEl(el, col.currentScore || 70));
+            document.querySelectorAll(`.collection-view[data-collection-idx="${idx}"] #projected-score-val`).forEach(el => animateScoreEl(el, col.projectedScore || 90));
+        }
+
+        const btn = document.getElementById('save-look-btn');
+        if (col && btn) {
+            const lookName = col.name || 'Curated Look';
+            if (Store.isOutfitSaved(lookName)) {
+                btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">bookmark_added</span> Saved';
+                btn.classList.replace('bg-brand', 'bg-foreground');
+                btn.classList.replace('text-brand-foreground', 'text-background');
+            } else {
+                btn.innerHTML = '<span class="material-symbols-outlined group-hover:-translate-y-1 transition-transform">bookmark</span> Save Look';
+                btn.classList.replace('bg-foreground', 'bg-brand');
+                btn.classList.replace('text-background', 'text-brand-foreground');
+            }
+        }
+    }
+
+    return { 
+        render, 
+        init, 
+        _retryInit, 
+        activateCategory, 
+        switchCollection: switchCollectionInternal
+    };
 })();
 
 window.ResultsPage = ResultsPage;

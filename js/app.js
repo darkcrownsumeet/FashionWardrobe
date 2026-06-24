@@ -32,7 +32,9 @@ const App = (() => {
         Router.register('/outfit', OutfitPage);
         Router.register('/color', ColorPage);
         Router.register('/results', ResultsPage);
-        Router.register('/saved', SavedPage);
+        Router.register('/saved', ArchivePage);
+        Router.register('/archive', ArchivePage);
+        Router.register('/view', ViewLookPage);
         Router.register('/wishlist', WishlistPage);
 
         // Initialize router
