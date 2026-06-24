@@ -183,18 +183,20 @@ Rules:
             console.log("\n--- EXACT STAGE 1 PROMPT ---");
             console.log(promptStage1);
             console.log("----------------------------\n");
-            
-            console.log("Stage 1: Calling Cerebras LLaMA-3.3-70B...");
+            console.log("Stage 1: Calling Groq (Qwen 32b)...");
+            if (!process.env.GROQ_API_KEY) {
+                throw new Error("Missing GROQ_API_KEY");
+            }
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 20000);
-            const cerebrasRes = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+            const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${process.env.CEREBRAS_API_KEY}`,
+                    'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'llama3.3-70b',
+                    model: 'qwen-2.5-32b',
                     messages: [{ role: 'user', content: promptStage1 }],
                     temperature: 0.7,
                     max_tokens: 2000
@@ -202,46 +204,20 @@ Rules:
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
-            if (!cerebrasRes.ok) {
-                const errTxt = await cerebrasRes.text();
-                throw new Error(`Cerebras Error ${cerebrasRes.status}: ${errTxt}`);
+            if (!groqRes.ok) {
+                const errTxt = await groqRes.text();
+                throw new Error(`Groq Error ${groqRes.status}: ${errTxt}`);
             }
-            const cerebrasData = await cerebrasRes.json();
-            jsonText = cerebrasData.choices[0].message.content;
+            const groqData = await groqRes.json();
+            jsonText = groqData.choices[0].message.content;
         } catch (apiError) {
-            console.error('Cerebras API Error (Stage 1):', apiError.message);
-            sendEvent({ status: "Cerebras overloaded, using Gemini fallback..." });
+            console.error('Groq API Error (Stage 1):', apiError.message);
+            sendEvent({ status: "Groq failed, using Gemini fallback..." });
             try {
                 const resultFromAPI = await model.generateContent(promptStage1);
                 jsonText = resultFromAPI.response.text();
             } catch (geminiError) {
                 console.error('Gemini Fallback Error (Stage 1):', geminiError.message);
-                if (process.env.GROQ_API_KEY) {
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 20000);
-                        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                model: 'qwen/qwen3-32b',
-                                messages: [{ role: 'user', content: promptStage1 }],
-                                temperature: 0.7,
-                                max_tokens: 2000
-                            }),
-                            signal: controller.signal
-                        });
-                        clearTimeout(timeoutId);
-                        if (!groqRes.ok) throw new Error(`Groq Error ${groqRes.status}`);
-                        const groqData = await groqRes.json();
-                        jsonText = groqData.choices[0].message.content;
-                    } catch (groqErr) {
-                        console.error('Groq API Error Details (Stage 1):', groqErr.message);
-                    }
-                }
             }
         }
 
