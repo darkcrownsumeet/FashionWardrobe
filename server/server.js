@@ -4,6 +4,14 @@ require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
+app.set('trust proxy', 1);
+const rateLimit = require('express-rate-limit');
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    message: { error: "Too many requests, please try again later." }
+});
+app.use('/api/recommend', apiLimiter);
 app.use(cors());
 app.use(express.json());
 
@@ -25,6 +33,25 @@ app.post('/api/recommend', async (req, res) => {
 
     try {
         const { prefs, selectedItems, fallbackHero } = req.body;
+        
+        if (selectedItems && selectedItems.length > 20) {
+            sendEvent({ error: "Too many items selected. Maximum is 20." });
+            res.end();
+            return;
+        }
+        if (prefs) {
+            if (prefs.stylePersonality && prefs.stylePersonality.join('').length > 150) {
+                sendEvent({ error: "Invalid style personality length." });
+                res.end();
+                return;
+            }
+            if (prefs.occasions && prefs.occasions.join('').length > 100) {
+                sendEvent({ error: "Invalid occasions length." });
+                res.end();
+                return;
+            }
+        }
+
         sendEvent({ status: "Exploring wardrobe..." });
 
         const styles = (prefs.stylePersonality || []).join(', ') || 'fashionable';
@@ -158,6 +185,8 @@ Rules:
             console.log("----------------------------\n");
             
             console.log("Stage 1: Calling Cerebras LLaMA-3.3-70B...");
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 20000);
             const cerebrasRes = await fetch('https://api.cerebras.ai/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -169,8 +198,10 @@ Rules:
                     messages: [{ role: 'user', content: promptStage1 }],
                     temperature: 0.7,
                     max_tokens: 2000
-                })
+                }),
+                signal: controller.signal
             });
+            clearTimeout(timeoutId);
             if (!cerebrasRes.ok) {
                 const errTxt = await cerebrasRes.text();
                 throw new Error(`Cerebras Error ${cerebrasRes.status}: ${errTxt}`);
@@ -187,6 +218,8 @@ Rules:
                 console.error('Gemini Fallback Error (Stage 1):', geminiError.message);
                 if (process.env.GROQ_API_KEY) {
                     try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 20000);
                         const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                             method: 'POST',
                             headers: {
@@ -198,8 +231,10 @@ Rules:
                                 messages: [{ role: 'user', content: promptStage1 }],
                                 temperature: 0.7,
                                 max_tokens: 2000
-                            })
+                            }),
+                            signal: controller.signal
                         });
+                        clearTimeout(timeoutId);
                         if (!groqRes.ok) throw new Error(`Groq Error ${groqRes.status}`);
                         const groqData = await groqRes.json();
                         jsonText = groqData.choices[0].message.content;
