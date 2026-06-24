@@ -385,9 +385,14 @@ Allowed dominantStyle values:
         let stage2JsonText = "";
         
         try {
-            const puter = require('@heyputer/puter.js').default;
             // Attempt 1: Puter.js (Claude Sonnet)
             console.log("Stage 2: Calling Claude via Puter...");
+            if (!process.env.PUTER_AUTH_TOKEN) {
+                throw new Error("PUTER_AUTH_TOKEN is missing in environment variables. Cannot use Puter backend.");
+            }
+            const { init } = require('@heyputer/puter.js/src/init.cjs');
+            const puter = init(process.env.PUTER_AUTH_TOKEN);
+            
             const puterRes = await puter.ai.chat(promptStage2, { model: 'claude-3-5-sonnet' });
             stage2JsonText = typeof puterRes === 'string' ? puterRes : (puterRes.message?.content || puterRes.text || JSON.stringify(puterRes));
         } catch (puterErr) {
