@@ -754,11 +754,11 @@ Respond ONLY in valid JSON matching this exact schema:
 
         let stage4JsonText = "";
         try {
-            console.log("Stage 4: Calling NVIDIA (Llama 3.3 70B)...");
+            console.log("Stage 4: Calling NVIDIA (Llama 3.1 8B)...");
             if (!openaiLlama) throw new Error("Missing NVIDIA_API_KEY_LLAMA");
             
             const completion = await openaiLlama.chat.completions.create({
-                model: "meta/llama-3.3-70b-instruct",
+                model: "meta/llama-3.1-8b-instruct",
                 messages: [{ role: 'user', content: promptStage4 }],
                 temperature: 0.2,
                 top_p: 0.7,
