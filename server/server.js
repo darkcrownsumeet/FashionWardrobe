@@ -46,10 +46,18 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-let openai = null;
-if (process.env.NVIDIA_API_KEY) {
-    openai = new OpenAI({
-        apiKey: process.env.NVIDIA_API_KEY,
+let openaiQwen = null;
+if (process.env.NVIDIA_API_KEY_QWEN) {
+    openaiQwen = new OpenAI({
+        apiKey: process.env.NVIDIA_API_KEY_QWEN,
+        baseURL: 'https://integrate.api.nvidia.com/v1',
+    });
+}
+
+let openaiLlama = null;
+if (process.env.NVIDIA_API_KEY_LLAMA) {
+    openaiLlama = new OpenAI({
+        apiKey: process.env.NVIDIA_API_KEY_LLAMA,
         baseURL: 'https://integrate.api.nvidia.com/v1',
     });
 }
@@ -220,11 +228,11 @@ Rules:
             console.log(promptStage1);
             console.log("----------------------------\n");
             console.log("Stage 1: Calling NVIDIA (Qwen 80B)...");
-            if (!openai) {
-                throw new Error("Missing NVIDIA_API_KEY");
+            if (!openaiQwen) {
+                throw new Error("Missing NVIDIA_API_KEY_QWEN");
             }
             
-            const completion = await openai.chat.completions.create({
+            const completion = await openaiQwen.chat.completions.create({
                 model: "qwen/qwen3-next-80b-a3b-instruct",
                 messages: [{ role: 'user', content: promptStage1 }],
                 temperature: 0.7,
@@ -428,9 +436,9 @@ Allowed dominantStyle values:
         
         try {
             console.log("Stage 2: Calling NVIDIA (Qwen 80B)...");
-            if (!openai) throw new Error("Missing NVIDIA_API_KEY");
+            if (!openaiQwen) throw new Error("Missing NVIDIA_API_KEY_QWEN");
             
-            const completion = await openai.chat.completions.create({
+            const completion = await openaiQwen.chat.completions.create({
                 model: "qwen/qwen3-next-80b-a3b-instruct",
                 messages: [{ role: 'user', content: promptStage2 }],
                 temperature: 0.3,
@@ -734,9 +742,9 @@ Respond ONLY in valid JSON matching this exact schema:
         let stage4JsonText = "";
         try {
             console.log("Stage 4: Calling NVIDIA (Llama 3.3 70B)...");
-            if (!openai) throw new Error("Missing NVIDIA_API_KEY");
+            if (!openaiLlama) throw new Error("Missing NVIDIA_API_KEY_LLAMA");
             
-            const completion = await openai.chat.completions.create({
+            const completion = await openaiLlama.chat.completions.create({
                 model: "meta/llama-3.3-70b-instruct",
                 messages: [{ role: 'user', content: promptStage4 }],
                 temperature: 0.2,
