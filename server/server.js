@@ -62,6 +62,14 @@ if (process.env.NVIDIA_API_KEY_LLAMA) {
     });
 }
 
+let openaiGptOss = null;
+if (process.env.NVIDIA_API_KEY_GPTOSS) {
+    openaiGptOss = new OpenAI({
+        apiKey: process.env.NVIDIA_API_KEY_GPTOSS,
+        baseURL: 'https://integrate.api.nvidia.com/v1',
+    });
+}
+
 app.post('/api/recommend', async (req, res) => {
     const startTime = Date.now();
     const reqId = crypto.randomUUID();
@@ -238,7 +246,7 @@ Rules:
                 temperature: 0.7,
                 max_tokens: 2048,
                 stream: false
-            }, { timeout: 20000 });
+            }, { timeout: 45000 });
             
             jsonText = completion.choices[0]?.message?.content;
             if (!jsonText) throw new Error("Empty response from NVIDIA");
@@ -435,17 +443,22 @@ Allowed dominantStyle values:
         let stage2JsonText = "";
         
         try {
-            console.log("Stage 2: Calling NVIDIA (Qwen 80B)...");
-            if (!openaiQwen) throw new Error("Missing NVIDIA_API_KEY_QWEN");
+            console.log("Stage 2: Calling NVIDIA (GPT-OSS 120B)...");
+            if (!openaiGptOss) throw new Error("Missing NVIDIA_API_KEY_GPTOSS");
             
-            const completion = await openaiQwen.chat.completions.create({
-                model: "qwen/qwen3-next-80b-a3b-instruct",
+            const completion = await openaiGptOss.chat.completions.create({
+                model: "openai/gpt-oss-120b",
                 messages: [{ role: 'user', content: promptStage2 }],
-                temperature: 0.3,
+                temperature: 1,
+                top_p: 1,
                 max_tokens: 4096,
                 stream: false
-            }, { timeout: 20000 });
+            }, { timeout: 45000 });
             
+            const reasoning = completion.choices[0]?.message?.reasoning_content;
+            if (reasoning) {
+                console.log("Stage 2 Reasoning output received.");
+            }
             stage2JsonText = completion.choices[0]?.message?.content;
             if (!stage2JsonText) throw new Error("Empty response from NVIDIA");
         } catch (nvidiaErr) {
@@ -751,7 +764,7 @@ Respond ONLY in valid JSON matching this exact schema:
                 top_p: 0.7,
                 max_tokens: 1024,
                 stream: false
-            }, { timeout: 20000 });
+            }, { timeout: 45000 });
             
             stage4JsonText = completion.choices[0]?.message?.content;
             if (!stage4JsonText) throw new Error("Empty response from NVIDIA");
