@@ -451,8 +451,10 @@ Allowed dominantStyle values:
                 messages: [{ role: 'user', content: promptStage2 }],
                 temperature: 1,
                 top_p: 0.95,
-                max_tokens: 16384,
-                chat_template_kwargs: {"thinking":true,"reasoning_effort":"high"},
+                max_tokens: 4096,
+                extra_body: {
+                    chat_template_kwargs: {"thinking":true,"reasoning_effort":"low"}
+                },
                 stream: false
             }, { timeout: 45000 });
             
