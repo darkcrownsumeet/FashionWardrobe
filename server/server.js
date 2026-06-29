@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const crypto = require('crypto');
 require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const OpenAI = require('openai');
 
 const app = express();
 
@@ -43,7 +44,15 @@ const PORT = process.env.PORT || 4000;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+let openai = null;
+if (process.env.NVIDIA_API_KEY) {
+    openai = new OpenAI({
+        apiKey: process.env.NVIDIA_API_KEY,
+        baseURL: 'https://integrate.api.nvidia.com/v1',
+    });
+}
 
 app.post('/api/recommend', async (req, res) => {
     const startTime = Date.now();
@@ -210,36 +219,24 @@ Rules:
             console.log("\n--- EXACT STAGE 1 PROMPT ---");
             console.log(promptStage1);
             console.log("----------------------------\n");
-            console.log("Stage 1: Calling Groq (Qwen 32b)...");
-            if (!process.env.GROQ_API_KEY) {
-                throw new Error("Missing GROQ_API_KEY");
+            console.log("Stage 1: Calling NVIDIA (Qwen 80B)...");
+            if (!openai) {
+                throw new Error("Missing NVIDIA_API_KEY");
             }
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 20000);
-            const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    model: 'qwen-2.5-32b',
-                    messages: [{ role: 'user', content: promptStage1 }],
-                    temperature: 0.7,
-                    max_tokens: 2000
-                }),
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (!groqRes.ok) {
-                const errTxt = await groqRes.text();
-                throw new Error(`Groq Error ${groqRes.status}: ${errTxt}`);
-            }
-            const groqData = await groqRes.json();
-            jsonText = groqData.choices[0].message.content;
+            
+            const completion = await openai.chat.completions.create({
+                model: "qwen/qwen3-next-80b-a3b-instruct",
+                messages: [{ role: 'user', content: promptStage1 }],
+                temperature: 0.7,
+                max_tokens: 2048,
+                stream: false
+            }, { timeout: 20000 });
+            
+            jsonText = completion.choices[0]?.message?.content;
+            if (!jsonText) throw new Error("Empty response from NVIDIA");
         } catch (apiError) {
-            console.error('Groq API Error (Stage 1):', apiError.message);
-            sendEvent({ status: "Groq failed, using Gemini fallback..." });
+            console.error('NVIDIA API Error (Stage 1):', apiError.message);
+            sendEvent({ status: "NVIDIA failed, using Gemini fallback..." });
             try {
                 const resultFromAPI = await model.generateContent(promptStage1);
                 jsonText = resultFromAPI.response.text();
@@ -430,50 +427,27 @@ Allowed dominantStyle values:
         let stage2JsonText = "";
         
         try {
-            // Attempt 1: Puter.js (Claude Sonnet)
-            console.log("Stage 2: Calling Claude via Puter...");
-            if (!process.env.PUTER_AUTH_TOKEN) {
-                throw new Error("PUTER_AUTH_TOKEN is missing in environment variables. Cannot use Puter backend.");
-            }
-            const { init } = require('@heyputer/puter.js/src/init.cjs');
-            const puter = init(process.env.PUTER_AUTH_TOKEN);
+            console.log("Stage 2: Calling NVIDIA (Qwen 80B)...");
+            if (!openai) throw new Error("Missing NVIDIA_API_KEY");
             
-            const puterRes = await puter.ai.chat(promptStage2, { model: 'claude-3-5-sonnet' });
-            stage2JsonText = typeof puterRes === 'string' ? puterRes : (puterRes.message?.content || puterRes.text || JSON.stringify(puterRes));
-        } catch (puterErr) {
-            console.log("Puter failed:", puterErr.message);
+            const completion = await openai.chat.completions.create({
+                model: "qwen/qwen3-next-80b-a3b-instruct",
+                messages: [{ role: 'user', content: promptStage2 }],
+                temperature: 0.3,
+                max_tokens: 4096,
+                stream: false
+            }, { timeout: 20000 });
+            
+            stage2JsonText = completion.choices[0]?.message?.content;
+            if (!stage2JsonText) throw new Error("Empty response from NVIDIA");
+        } catch (nvidiaErr) {
+            console.error("NVIDIA API Error (Stage 2):", nvidiaErr.message);
+            console.log("Stage 2: Falling back to Gemini...");
             try {
-                // Attempt 2: Gemini
-                console.log("Stage 2: Falling back to Gemini...");
                 const resStage2 = await model.generateContent(promptStage2);
                 stage2JsonText = resStage2.response.text();
             } catch (geminiErr) {
-                console.log("Gemini fallback failed:", geminiErr.message);
-                if (process.env.GROQ_API_KEY) {
-                    try {
-                        // Attempt 3: Groq Qwen
-                        console.log("Stage 2: Falling back to Groq Qwen...");
-                        const groqResStage2 = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                            method: 'POST',
-                            headers: {
-                                'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                model: 'qwen/qwen3-32b',
-                                messages: [{ role: 'user', content: promptStage2 }],
-                                temperature: 0.3,
-                                max_tokens: 4000
-                            })
-                        });
-                        const groqDataStage2 = await groqResStage2.json();
-                        if (groqDataStage2.choices && groqDataStage2.choices[0]) {
-                            stage2JsonText = groqDataStage2.choices[0].message.content;
-                        }
-                    } catch (groqErr) {
-                         console.error('Groq fallback failed:', groqErr.message);
-                    }
-                }
+                console.error("Gemini fallback failed (Stage 2):", geminiErr.message);
             }
         }
 
@@ -759,34 +733,27 @@ Respond ONLY in valid JSON matching this exact schema:
 
         let stage4JsonText = "";
         try {
-            console.log("Stage 4: Calling Gemini...");
-            const resStage4 = await model.generateContent(promptStage4);
-            stage4JsonText = resStage4.response.text();
-        } catch (geminiErr) {
-            console.log("Stage 4 Gemini failed:", geminiErr.message);
-            if (process.env.GROQ_API_KEY) {
-                try {
-                    console.log("Stage 4: Falling back to Groq Qwen...");
-                    const groqResStage4 = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            model: 'qwen/qwen3-32b',
-                            messages: [{ role: 'user', content: promptStage4 }],
-                            temperature: 0.4,
-                            max_tokens: 4000
-                        })
-                    });
-                    const groqDataStage4 = await groqResStage4.json();
-                    if (groqDataStage4.choices && groqDataStage4.choices[0]) {
-                        stage4JsonText = groqDataStage4.choices[0].message.content;
-                    }
-                } catch (groqErr) {
-                    console.error('Stage 4 Groq fallback failed:', groqErr.message);
-                }
+            console.log("Stage 4: Calling NVIDIA (Qwen 80B)...");
+            if (!openai) throw new Error("Missing NVIDIA_API_KEY");
+            
+            const completion = await openai.chat.completions.create({
+                model: "qwen/qwen3-next-80b-a3b-instruct",
+                messages: [{ role: 'user', content: promptStage4 }],
+                temperature: 0.6,
+                max_tokens: 4096,
+                stream: false
+            }, { timeout: 20000 });
+            
+            stage4JsonText = completion.choices[0]?.message?.content;
+            if (!stage4JsonText) throw new Error("Empty response from NVIDIA");
+        } catch (nvidiaErr) {
+            console.error("NVIDIA API Error (Stage 4):", nvidiaErr.message);
+            console.log("Stage 4: Falling back to Gemini...");
+            try {
+                const resStage4 = await model.generateContent(promptStage4);
+                stage4JsonText = resStage4.response.text();
+            } catch (geminiErr) {
+                console.error("Gemini fallback failed (Stage 4):", geminiErr.message);
             }
         }
 
