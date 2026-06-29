@@ -1,9 +1,34 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const crypto = require('crypto');
 require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
+
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: false,
+    crossOriginEmbedderPolicy: false,
+    frameguard: { action: 'deny' },
+    referrerPolicy: { policy: 'no-referrer' },
+    hsts: { maxAge: 31536000, includeSubDomains: true },
+    hidePoweredBy: true,
+    noSniff: true
+}));
+
+const allowedOrigins = ['http://localhost:8080', 'http://127.0.0.1:8080', process.env.FRONTEND_URL];
+app.use(cors({
+    origin: function(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS Policy Rejection'));
+        }
+    }
+}));
+
 app.set('trust proxy', 1);
 const rateLimit = require('express-rate-limit');
 const apiLimiter = rateLimit({
@@ -12,7 +37,6 @@ const apiLimiter = rateLimit({
     message: { error: "Too many requests, please try again later." }
 });
 app.use('/api/recommend', apiLimiter);
-app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
@@ -22,6 +46,9 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
 app.post('/api/recommend', async (req, res) => {
+    const startTime = Date.now();
+    const reqId = crypto.randomUUID();
+
     // Enable Server-Sent Events (SSE)
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -232,6 +259,13 @@ Rules:
             }
             try {
                 parsed = JSON.parse(jsonText);
+                if (!parsed || !Array.isArray(parsed.candidates)) {
+                    console.error('Schema Validation Failed: expected { candidates: [...] }');
+                    parsed = { candidates: [] };
+                } else if (parsed.candidates.length > 0 && !Array.isArray(parsed.candidates[0])) {
+                    console.error('Schema Validation Failed: expected candidates to be array of arrays');
+                    parsed = { candidates: [] };
+                }
             } catch (parseError) {
                 console.error('Failed to parse Stage 1 JSON:', parseError);
                 console.error('Raw text was:', jsonText);
@@ -806,8 +840,22 @@ Respond ONLY in valid JSON matching this exact schema:
         res.end();
 
     } catch (error) {
-        console.error('API Error:', error);
-        sendEvent({ error: error.message });
+        const duration = Date.now() - startTime;
+        console.error(JSON.stringify({
+            timestamp: new Date().toISOString(),
+            requestId: reqId,
+            endpoint: req.originalUrl,
+            method: req.method,
+            provider: 'AI_Pipeline',
+            statusCode: 500,
+            durationMs: duration,
+            errorType: error.name,
+            stack: error.stack
+        }));
+        sendEvent({ 
+            error: "An unexpected server error occurred while processing your request.",
+            referenceId: reqId
+        });
         res.end();
     }
 });
