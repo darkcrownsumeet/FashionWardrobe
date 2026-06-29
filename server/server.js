@@ -62,10 +62,10 @@ if (process.env.NVIDIA_API_KEY_LLAMA) {
     });
 }
 
-let openaiGptOss = null;
-if (process.env.NVIDIA_API_KEY_GPTOSS) {
-    openaiGptOss = new OpenAI({
-        apiKey: process.env.NVIDIA_API_KEY_GPTOSS,
+let openaiDeepSeek = null;
+if (process.env.NVIDIA_API_KEY_DEEPSEEK) {
+    openaiDeepSeek = new OpenAI({
+        apiKey: process.env.NVIDIA_API_KEY_DEEPSEEK,
         baseURL: 'https://integrate.api.nvidia.com/v1',
     });
 }
@@ -443,19 +443,20 @@ Allowed dominantStyle values:
         let stage2JsonText = "";
         
         try {
-            console.log("Stage 2: Calling NVIDIA (GPT-OSS 120B)...");
-            if (!openaiGptOss) throw new Error("Missing NVIDIA_API_KEY_GPTOSS");
+            console.log("Stage 2: Calling NVIDIA (DeepSeek V4 Flash)...");
+            if (!openaiDeepSeek) throw new Error("Missing NVIDIA_API_KEY_DEEPSEEK");
             
-            const completion = await openaiGptOss.chat.completions.create({
-                model: "openai/gpt-oss-120b",
+            const completion = await openaiDeepSeek.chat.completions.create({
+                model: "deepseek-ai/deepseek-v4-flash",
                 messages: [{ role: 'user', content: promptStage2 }],
                 temperature: 1,
-                top_p: 1,
-                max_tokens: 4096,
+                top_p: 0.95,
+                max_tokens: 16384,
+                chat_template_kwargs: {"thinking":true,"reasoning_effort":"high"},
                 stream: false
             }, { timeout: 45000 });
             
-            const reasoning = completion.choices[0]?.message?.reasoning_content;
+            const reasoning = completion.choices[0]?.message?.reasoning || completion.choices[0]?.message?.reasoning_content;
             if (reasoning) {
                 console.log("Stage 2 Reasoning output received.");
             }
@@ -762,7 +763,7 @@ Respond ONLY in valid JSON matching this exact schema:
                 messages: [{ role: 'user', content: promptStage4 }],
                 temperature: 0.2,
                 top_p: 0.7,
-                max_tokens: 1024,
+                max_tokens: 4096,
                 stream: false
             }, { timeout: 45000 });
             
