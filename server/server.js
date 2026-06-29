@@ -733,14 +733,15 @@ Respond ONLY in valid JSON matching this exact schema:
 
         let stage4JsonText = "";
         try {
-            console.log("Stage 4: Calling NVIDIA (Qwen 80B)...");
+            console.log("Stage 4: Calling NVIDIA (Llama 3.3 70B)...");
             if (!openai) throw new Error("Missing NVIDIA_API_KEY");
             
             const completion = await openai.chat.completions.create({
-                model: "qwen/qwen3-next-80b-a3b-instruct",
+                model: "meta/llama-3.3-70b-instruct",
                 messages: [{ role: 'user', content: promptStage4 }],
-                temperature: 0.6,
-                max_tokens: 4096,
+                temperature: 0.2,
+                top_p: 0.7,
+                max_tokens: 1024,
                 stream: false
             }, { timeout: 20000 });
             
