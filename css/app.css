@@ -145,6 +145,9 @@ img {
     outline: 3px solid #000;
     outline-offset: 4px;
 }
+.dark .selection-card.active {
+    outline-color: #ffffff;
+}
 
 .selection-card:hover .selection-overlay {
     opacity: 1;
@@ -160,14 +163,24 @@ img {
     border: 1px solid rgba(0, 0, 0, 0.05);
     transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
+.dark .glass-card-interactive {
+    background: #1a1a1a;
+    border-color: rgba(255, 255, 255, 0.1);
+}
 .glass-card-interactive:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.1);
+}
+.dark .glass-card-interactive:hover {
+    box-shadow: 0 30px 60px -12px rgba(255, 255, 255, 0.05);
 }
 .selected-card {
     outline: 2px solid #000000;
     outline-offset: 4px;
     box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+}
+.dark .selected-card {
+    outline-color: #ffffff;
 }
 .editorial-image {
     transition: transform 0.8s ease;
@@ -188,6 +201,9 @@ img {
     outline: 2px solid #000000;
     outline-offset: 4px;
 }
+.dark .style-card.active {
+    outline-color: #ffffff;
+}
 
 /* --- Color/Budget Cards (Step 5-6) --- */
 .selection-glow {
@@ -200,6 +216,9 @@ img {
 .active-card {
     border: 2px solid #000000 !important;
 }
+.dark .active-card {
+    border-color: #ffffff !important;
+}
 .step-indicator {
     width: 40px;
     height: 2px;
@@ -208,6 +227,9 @@ img {
 }
 .step-indicator.active {
     background: #000000;
+}
+.dark .step-indicator.active {
+    background: #ffffff;
 }
 
 /* --- Auth Floating Labels --- */
@@ -271,6 +293,10 @@ img {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
+.dark .toast {
+    background: #f9f9f9;
+    color: #111111;
+}
 
 /* Loading shimmer for results page */
 @keyframes shimmer {
@@ -281,6 +307,10 @@ img {
     background: linear-gradient(90deg, #f3f3f3 25%, #e8e8e8 50%, #f3f3f3 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
+}
+.dark .shimmer {
+    background: linear-gradient(90deg, #1f1f1f 25%, #2a2a2a 50%, #1f1f1f 75%);
+    background-size: 200% 100%;
 }
 
 /* ==============================================
@@ -488,20 +518,4 @@ html, body {
     animation: clipReveal 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* --- Dark Mode Section Transition --- */
-body {
-    transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-body.dark-mode-override {
-    background-color: var(--foreground, #000) !important;
-    color: var(--background, #fff) !important;
-}
-/* Ensure the sticky nav adapts during dark mode override */
-body.dark-mode-override nav.sticky {
-    background-color: rgba(0, 0, 0, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    color: #fff !important;
-}
-body.dark-mode-override nav.sticky .text-brand {
-    color: var(--brand, #ff0000) !important; /* Keep brand color */
-}
+

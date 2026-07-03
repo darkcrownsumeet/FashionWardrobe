@@ -1,6 +1,6 @@
 # 👗 FashionWardrobe
 
-**FashionWardrobe** is an AI-powered fashion recommendation web app that analyzes your outfit selections, detects style and color clashes, and suggests perfectly curated accessories — all in real time using Google Gemini AI.
+**FashionWardrobe** is an AI-powered fashion recommendation web app that analyzes your outfit selections and suggests curated accessories using a multi-stage AI styling pipeline — all in real time.
 
 ---
 
@@ -9,12 +9,39 @@
 - 🎯 **Personalized Style Quiz** — Select your gender, occasion, style personality, and budget through an intuitive multi-step flow
 - 👔 **Outfit Builder** — Browse and pick items across categories: topwear, bottomwear, outerwear, footwear & accessories
 - 🎨 **Color & Pattern Picker** — Assign colors and patterns to each outfit item using an interactive color picker
-- 🤖 **AI Clash Detection** — Gemini AI analyzes your selections for item clashes (style conflicts) and color clashes
-- 💡 **Dual-Scenario Advisor** — When clashes are found, the AI presents two optimized outfit paths (Scenario A & B) to fix the look
-- 📊 **Match Score** — Get a real-time cohesion score for your complete outfit
-- 💾 **Saved Looks** — Save your favorite AI-generated recommendations
-- ❤️ **Wishlist** — Bookmark accessory items you want to buy later
-- 🔐 **Google Auth** — Sign in with Google to persist your saved looks and wishlist
+- 🤖 **4-Stage AI Styling Pipeline** — A sophisticated recommendation engine that explores, evaluates, filters, and styles complete outfits
+- 📊 **Match Score** — Get a cohesive projected score for your AI-curated outfits
+- 💾 **Archive** — Save your favorite AI-generated recommendations (stored locally on this device)
+- ❤️ **Wishlist** — Bookmark accessory items you want to buy later (stored locally on this device)
+- 🔐 **Sign In** — Optionally sign in with Google or email to save your name/preferences locally on this device
+
+> **Note on authentication:** Sign-in is client-side only. Your name and email are stored in `localStorage` on your device. There is no server-side account system or cloud persistence.
+
+---
+
+## 📸 Screenshots
+
+*(Replace the placeholders below with actual screenshots of your application)*
+
+### Landing Page
+![Landing Page Placeholder](https://via.placeholder.com/800x450?text=Landing+Page)
+
+### Outfit Selection
+![Outfit Selection Placeholder](https://via.placeholder.com/800x450?text=Outfit+Selection)
+
+### Recommendation Results
+![Results Placeholder](https://via.placeholder.com/800x450?text=Recommendation+Results)
+
+### Saved Archive
+![Archive Placeholder](https://via.placeholder.com/800x450?text=Saved+Archive)
+
+---
+
+## 🚀 Demo
+
+*(Link to your live demo, video walkthrough, or interactive presentation here)*
+
+**[View Live Demo](#)** | **[Watch Walkthrough Video](#)**
 
 ---
 
@@ -28,8 +55,48 @@
 | Color Picker | [Pickr](https://simonwep.github.io/pickr/) |
 | AI Images | [Pollinations AI](https://pollinations.ai/) |
 | Backend | Node.js + Express |
-| AI Engine | Google Gemini 2.5 Flash (`@google/generative-ai`) |
-| Auth | Google Identity Services (GSI) |
+| Primary AI Engine | Google Gemini 2.5 Flash (`@google/generative-ai`) |
+| Fallback AI Engines | NVIDIA NIM API, OpenRouter (optional) |
+| Auth | Google Identity Services (GSI) — client-side only |
+
+---
+
+## 🧠 AI Pipeline Architecture
+
+FashionWardrobe uses a deterministic, multi-stage LLM pipeline to ensure high-quality recommendations. Instead of relying on a single prompt, the engine breaks the problem into discrete logic steps.
+
+```mermaid
+graph TD
+    A[Frontend] -->|User Preferences & Selected Items| B(Recommendation API)
+    
+    B --> C[Stage 1: Outfit Explorer]
+    C -->|Extracts candidate outfit combinations| D{Stage 1.5: Structural Validator}
+    
+    D -->|Filters physically impossible outfits| E[Stage 2: Outfit Analyzer]
+    E -->|Scores & rejects poor combinations| F{Stage 3: Diversity Filter}
+    
+    F -->|Selects Top 3 distinct looks| G[Stage 4: Stylist]
+    G -->|Generates metadata, colors & accessories| H{Stage 4.5: Sanitizer}
+    
+    H -->|Removes hallucinations & normalizes JSON| I[Frontend Results]
+    
+    style A fill:#000,color:#fff,stroke:#333,stroke-width:2px
+    style I fill:#000,color:#fff,stroke:#333,stroke-width:2px
+    style B fill:#333,color:#fff,stroke:#666
+    style C fill:#095a28,color:#fff,stroke:#fff
+    style E fill:#095a28,color:#fff,stroke:#fff
+    style G fill:#095a28,color:#fff,stroke:#fff
+    style D fill:#6b1717,color:#fff,stroke:#fff,shape:diamond
+    style F fill:#6b1717,color:#fff,stroke:#fff,shape:diamond
+    style H fill:#6b1717,color:#fff,stroke:#fff,shape:diamond
+```
+
+### Pipeline Stages Explained
+
+1. **Stage 1 (Explorer)**: Uses a fast, creative LLM (e.g. Qwen) to generate many potential outfit candidate arrays based purely on structural IDs.
+2. **Stage 2 (Judge)**: Uses a highly logical LLM (e.g. Gemini 2.5 Flash) to independently grade and potentially reject each candidate outfit based on style rules.
+3. **Stage 3 (Filter)**: A deterministic JavaScript function that deduplicates outfits, removes subsets, and selects the top 3 highest-scoring variations.
+4. **Stage 4 (Stylist)**: Uses an advanced LLM (e.g. Llama 3.1 70B) to generate the final editorial metadata, color harmonization logic, and accessory suggestions for the top outfits.
 
 ---
 
@@ -50,19 +117,26 @@ FashionWardrobe/
 │   │   └── recommend.js    # AI recommendation engine (calls backend)
 │   └── pages/
 │       ├── landing.js      # Landing / hero page
-│       ├── auth.js         # Google Sign-In page
+│       ├── auth.js         # Sign-in page (local storage only)
 │       ├── gender.js       # Step 1: Gender selection
 │       ├── occasion.js     # Step 2: Occasion selection
 │       ├── style.js        # Step 3: Style personality selection
 │       ├── outfit.js       # Step 4: Outfit item selection
-│       ├── color-budget.js # Step 5: Color picker & budget selection
-│       ├── results.js      # Results page with AI recommendations
-│       ├── saved.js        # Saved looks page
-│       └── wishlist.js     # Wishlist page
+│       ├── color.js        # Step 5: Color picker
+│       ├── results_new.js  # Results page with AI recommendations
+│       ├── archive.js      # Saved looks page (localStorage)
+│       └── wishlist.js     # Wishlist page (localStorage)
 └── server/
-    ├── server.js           # Express backend + Gemini AI integration
+    ├── server.js           # Express backend
+    ├── pipeline/           # 4-stage AI pipeline orchestration
+    ├── stages/             # Stage 1–4 implementations
+    ├── prompts/            # LLM prompt builders
+    ├── llm/                # LLM provider adapters (Gemini, NVIDIA, OpenRouter)
+    ├── utils/              # Helpers: colors, metrics, logger, JSON parser
+    ├── test/               # Deterministic pipeline tests (npm test)
+    ├── scripts/            # Dev/migration utilities (not runtime code)
     ├── package.json        # Backend dependencies
-    └── .env                # 🔒 Environment variables (NOT committed)
+    └── .env.example        # 📋 Copy this to .env and fill in your keys
 ```
 
 ---
@@ -90,11 +164,10 @@ npm install
 
 ### 3. Configure environment variables
 
-Create a `.env` file inside the `server/` directory:
+Copy `.env.example` to `.env` inside the `server/` directory and fill in your keys:
 
-```env
-GEMINI_API_KEY=your_google_gemini_api_key_here
-PORT=4000
+```bash
+cp .env.example .env
 ```
 
 > ⚠️ **Never commit your `.env` file.** It is already listed in `.gitignore`.
@@ -106,6 +179,12 @@ node server.js
 ```
 
 The API will be available at `http://localhost:4000`.
+
+You can verify the server is running:
+```bash
+curl http://localhost:4000/health
+# → {"status":"ok","timestamp":"..."}
+```
 
 ### 5. Open the frontend
 
@@ -123,9 +202,18 @@ python -m http.server 8080
 
 ## 🌐 API Endpoints
 
-### `POST /api/recommend`
+### `GET /health`
 
-Analyzes the user's outfit and returns AI-powered recommendations.
+Returns server status. Useful for readiness checks.
+
+```json
+{ "status": "ok", "timestamp": "2026-07-03T15:00:00.000Z" }
+```
+
+### `POST /api/recommend`
+*(Utilizes Server-Sent Events / SSE)*
+
+Analyzes the user's wardrobe and returns styled outfit recommendations by streaming real-time status updates through the 4-stage AI pipeline.
 
 **Request Body:**
 ```json
@@ -133,37 +221,50 @@ Analyzes the user's outfit and returns AI-powered recommendations.
   "prefs": {
     "gender": "male",
     "occasions": ["casual"],
-    "stylePersonality": ["streetwear", "minimalist"],
+    "stylePersonality": ["streetwear"],
     "budget": "Mid-range",
-    "itemColors": { "item-id": { "primary": "Navy", "secondary": "White", "pattern": "Solid" } }
+    "itemColors": { "item-id": { "primary": "Navy" } }
   },
   "selectedItems": [
-    { "id": "item-id", "name": "White Oversized Tee", "category": "topwear", "image": "..." }
+    { "id": "item-id", "name": "White Oversized Tee", "category": "topwear" }
   ]
 }
 ```
 
-**Response:**
-```json
-{
-  "yourLook": [...],
-  "clashes": [],
-  "mode": "single",
-  "matchScore": 92,
-  "accessories": [...],
-  "explanation": "...",
-  "attributes": ["MID-RANGE Tier", "STREETWEAR Style", "CASUAL Ready"]
-}
-```
+**SSE Event Streams:**
+- `status`: Streaming pipeline stages (e.g., "Exploring wardrobe...", "Styling final selections...")
+- `result`: The final JSON object containing outfit collections.
+- `error`: Emitted on fatal failure or validation error.
 
 ---
 
 ## 🔒 Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `GEMINI_API_KEY` | Your Google Gemini API key |
-| `PORT` | Port for the backend server (default: `4000`) |
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GEMINI_API_KEY` | ✅ Required | Your Google Gemini API key (primary engine) |
+| `PORT` | Optional | Port for the backend server (default: `4000`) |
+| `FRONTEND_URL` | Optional | Allowed CORS origin. Required in production (e.g. `https://yourapp.com`) |
+| `DEBUG_PIPELINE` | Optional | Set to `true` to enable verbose logging and metrics dump. **Never enable in production.** |
+| `OPENROUTER_API_KEY` | Optional | API key for OpenRouter fallback provider |
+| `NVIDIA_API_KEY_QWEN` | Optional | NVIDIA NIM key for Qwen model (Stage 1 default fallback) |
+| `NVIDIA_API_KEY_LLAMA` | Optional | NVIDIA NIM key for Llama model |
+| `NVIDIA_API_KEY_STAGE2` | Optional | NVIDIA NIM key for Stage 2 judge model |
+| `NVIDIA_API_KEY_DEEPSEEK` | Optional | NVIDIA NIM key for DeepSeek model |
+| `NVIDIA_API_KEY_MINIMAX` | Optional | NVIDIA NIM key for MiniMax model |
+
+> **Fallback providers are entirely optional.** The pipeline runs with `GEMINI_API_KEY` alone. NVIDIA and OpenRouter are used when the primary provider times out or is unavailable.
+
+---
+
+## 🧪 Running Tests
+
+```bash
+cd server
+npm test
+```
+
+Runs deterministic pipeline validation tests that simulate LLM failures, schema violations, hallucinated IDs, and contract enforcement — without making real API calls.
 
 ---
 

@@ -21,6 +21,10 @@ const Router = (() => {
     }
 
     function handleRoute() {
+        if (window.RecommendationEngine && RecommendationEngine.abortCurrent) {
+            RecommendationEngine.abortCurrent();
+        }
+
         let fullHash = window.location.hash.slice(1) || '/landing';
         let basePath = fullHash.split('?')[0];
         let targetPath = basePath;

@@ -36,7 +36,7 @@ const ColorPage = (() => {
 
         return allProducts.filter(p => {
             if (!ids.includes(p.id)) return false;
-            if (p.gender !== currentGender && p.gender !== 'unisex') return false;
+            if (p.gender !== currentGender) return false;
             if (occasion && !p.occasions.includes(occasion)) return false;
             if (styles.length > 0 && !p.styles.some(s => styles.includes(s))) return false;
             return true;
@@ -50,9 +50,9 @@ const ColorPage = (() => {
         let colorsSection = '';
         if (selectedItems.length === 0) {
             colorsSection = `
-                <div class="text-center p-12 border border-foreground bg-background">
+                <div class="text-center p-12 border border-foreground dark:border-background bg-background dark:bg-foreground">
                     <span class="material-symbols-outlined text-[48px] text-muted mb-4">apparel</span>
-                    <h3 class="font-sans font-extrabold uppercase tracking-tighter text-3xl mb-2 text-foreground">No items selected</h3>
+                    <h3 class="font-sans font-extrabold uppercase tracking-tighter text-3xl mb-2 text-foreground dark:text-background">No items selected</h3>
                     <p class="font-mono text-xs text-muted uppercase tracking-widest">You didn't select any specific clothing items in the previous step. We'll generate a fully unexpected outfit for you!</p>
                 </div>
             `;
@@ -83,8 +83,8 @@ const ColorPage = (() => {
                         
                         return `
                         <button class="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-[2px] ${isSelected ? 'border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)]' : 'border-outline-variant/30 hover:border-foreground'} transition-all flex items-center justify-center group relative item-color-swatch" data-item-id="${item.id}" data-val="${c.key}" data-type="${type}" data-custom="false" style="${bgStyle}" title="${c.key}">
-                            ${isSelected ? `<span class="material-symbols-outlined text-[20px] ${['White', 'Beige'].includes(c.key) ? 'text-foreground' : 'text-background'} drop-shadow-md">check</span>` : ''}
-                            <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-2 py-1 text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 font-mono tracking-widest uppercase">${c.key}</span>
+                            ${isSelected ? `<span class="material-symbols-outlined text-[20px] ${['White', 'Beige'].includes(c.key) ? 'text-foreground dark:text-background' : 'text-background dark:text-foreground'} drop-shadow-md">check</span>` : ''}
+                            <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-foreground dark:bg-background text-background dark:text-foreground px-2 py-1 text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 font-mono tracking-widest uppercase">${c.key}</span>
                         </button>
                         `;
                     }).join('');
@@ -97,14 +97,14 @@ const ColorPage = (() => {
                             <div class="absolute inset-0 pointer-events-none custom-pickr-bg" style="background: ${customBg};"></div>
                             <div class="pickr-anchor absolute inset-0 opacity-0 cursor-pointer" data-item-id="${item.id}" data-type="${type}" data-default="${defaultHex}"></div>
                             ${isCustomActive ? `<div class="absolute inset-0 flex items-center justify-center pointer-events-none"><span class="material-symbols-outlined text-[20px] text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">check</span></div>` : `<div class="absolute inset-0 flex items-center justify-center pointer-events-none bg-white/20"><span class="material-symbols-outlined text-[18px] text-white drop-shadow-md">palette</span></div>`}
-                            <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-foreground text-background px-2 py-1 text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 font-mono tracking-widest uppercase">Custom</span>
+                            <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-foreground dark:bg-background text-background dark:text-foreground px-2 py-1 text-[10px] whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 font-mono tracking-widest uppercase">Custom</span>
                         </div>
                     `;
                     return swatches;
                 };
 
                 const patternHtml = patterns.map(p => `
-                    <button class="px-6 py-3 border-[2px] text-xs font-mono tracking-widest transition-all uppercase pattern-btn ${saved.pattern === p ? 'bg-brand text-brand-foreground border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)]' : 'border-foreground hover:bg-foreground/5 text-foreground'}" data-item-id="${item.id}" data-pattern="${p}">${p}</button>
+                    <button class="px-6 py-3 border-[2px] text-xs font-mono tracking-widest transition-all uppercase pattern-btn ${saved.pattern === p ? 'bg-brand text-brand-foreground border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)]' : 'border-foreground dark:border-background hover:bg-foreground/5 dark:hover:bg-background/5 text-foreground dark:text-background'}" data-item-id="${item.id}" data-pattern="${p}">${p}</button>
                 `).join('');
 
                 const showSecondary = saved.secondary !== null;
@@ -112,11 +112,11 @@ const ColorPage = (() => {
                 const shouldShowSecondary = showSecondary || requiresMultipleColors;
 
                 return `
-                <div class="mb-12 border-[2px] border-foreground p-6 sm:p-10 configuration-block bg-background" data-item-id="${item.id}">
-                    <div class="flex items-center gap-6 mb-8 pb-6 border-b border-foreground">
-                        <img src="${item.image}" class="w-16 h-16 object-cover border-[2px] border-foreground" alt="${item.name}">
+                <div class="mb-12 border-[2px] border-foreground dark:border-background p-6 sm:p-10 configuration-block bg-background dark:bg-foreground" data-item-id="${item.id}">
+                    <div class="flex items-center gap-6 mb-8 pb-6 border-b border-foreground dark:border-background">
+                        <img src="${item.image}" class="w-16 h-16 object-cover border-[2px] border-foreground dark:border-background" alt="${item.name}">
                         <div>
-                            <h3 class="font-sans font-extrabold uppercase tracking-tighter text-2xl lg:text-3xl text-foreground">${item.name}</h3>
+                            <h3 class="font-sans font-extrabold uppercase tracking-tighter text-2xl lg:text-3xl text-foreground dark:text-background">${item.name}</h3>
                             <p class="font-mono text-[10px] text-brand uppercase tracking-widest">${item.category}</p>
                         </div>
                     </div>
@@ -140,7 +140,7 @@ const ColorPage = (() => {
                     </div>
                     ` : `
                     <div class="mb-10">
-                        <button class="font-mono text-xs tracking-[0.3em] uppercase text-foreground hover:bg-foreground hover:text-background px-6 py-3 border-[2px] border-foreground transition-colors flex items-center gap-3 add-secondary-btn" data-item-id="${item.id}">
+                        <button class="font-mono text-xs tracking-[0.3em] uppercase text-foreground dark:text-background hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground px-6 py-3 border-[2px] border-foreground dark:border-background transition-colors flex items-center gap-3 add-secondary-btn" data-item-id="${item.id}">
                             <span class="material-symbols-outlined text-[16px]">add</span> ADD SECONDARY COLOR
                         </button>
                     </div>
@@ -160,14 +160,14 @@ const ColorPage = (() => {
         }
 
         return `
-<div class="h-screen w-screen bg-background text-foreground flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden">
+<div class="h-screen w-screen bg-background dark:bg-foreground text-foreground dark:text-background flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden">
     <!-- Top Nav -->
-    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground bg-background px-6 py-4">
+    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground dark:border-background bg-background dark:bg-foreground px-6 py-4">
         <div class="font-mono text-xs font-bold tracking-tighter cursor-pointer" onclick="window.Router.navigate('/landing')">
             FASHIONWARDROBE<sup class="ml-1 text-brand">®</sup>
         </div>
         <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
-            <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 05 / 06</span>
+            <span class="hidden sm:inline-block border border-foreground dark:border-background px-3 py-1">INDEX 05 / 06</span>
             <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startColorTour()" title="Replay Walkthrough">
                 <span class="material-symbols-outlined text-[14px]">help</span>
             </button>
@@ -178,18 +178,18 @@ const ColorPage = (() => {
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground h-full overflow-hidden">
+    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground dark:border-background h-full overflow-hidden">
         
         <!-- Left Side: Copy -->
-        <div class="w-full lg:w-[35%] h-[30%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground p-6 lg:p-12 relative overflow-hidden">
+        <div class="w-full lg:w-[35%] h-[30%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground dark:border-background p-6 lg:p-12 relative overflow-hidden">
             <div class="mt-2 lg:mt-8 z-10">
-                <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand mb-2 lg:mb-4 block">Step 05 / 06</span>
+                <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand mb-2 lg:mb-4 block">Step 05 / 05</span>
                 <h1 class="text-3xl lg:text-[clamp(2.5rem,4vw,4.5rem)] font-extrabold uppercase leading-[0.85] tracking-tighter font-sans antialiased mb-2 lg:mb-6">
                     Define<br>
                     <span class="text-brand">Canvas</span>
                 </h1>
                 <div class="flex gap-4 items-start mb-12">
-                    <div class="w-1 h-full bg-foreground/10 flex-shrink-0 mt-2"></div>
+                    <div class="w-1 h-full bg-foreground/10 dark:bg-background/10 flex-shrink-0 mt-2"></div>
                     <p class="font-mono text-[10px] lg:text-xs leading-relaxed text-muted max-w-sm uppercase tracking-widest hidden sm:block">
                         Select colors and patterns for your selected pieces.
                     </p>
@@ -210,9 +210,9 @@ const ColorPage = (() => {
     </main>
 
     <!-- Bottom Bar -->
-    <footer class="bg-background flex flex-col md:flex-row items-stretch border-t border-foreground shrink-0 z-50">
-        <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground">
-            <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted hover:text-foreground transition-colors flex items-center group" onclick="window.Router.navigate('/outfit')">
+    <footer class="bg-background dark:bg-foreground flex flex-col md:flex-row items-stretch border-t border-foreground dark:border-background shrink-0 z-50">
+        <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground dark:border-background">
+            <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/50 dark:text-background/50 hover:text-foreground dark:hover:text-background transition-colors flex items-center group" onclick="window.Router.navigate('/outfit')">
                 <span class="material-symbols-outlined text-[14px] mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span> BACK
             </button>
         </div>

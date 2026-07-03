@@ -9,7 +9,7 @@ const ViewLookPage = (() => {
     
     function render() {
         return `
-<div class="h-screen w-screen bg-background text-foreground flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden" id="view-wrapper">
+<div class="h-screen w-screen bg-background dark:bg-foreground text-foreground dark:text-background flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden" id="view-wrapper">
     <div class="flex-grow flex items-center justify-center h-full">
         <span class="material-symbols-outlined animate-spin text-4xl text-brand">sync</span>
     </div>
@@ -17,7 +17,7 @@ const ViewLookPage = (() => {
     }
 
     function _buildLink(id, text) {
-        return `<button class="res-cat-link px-6 py-4 font-mono text-[10px] sm:text-xs uppercase tracking-[0.2em] font-bold text-foreground/50 hover:text-foreground transition-colors whitespace-nowrap border-b-[3px] border-transparent [&.active]:border-brand [&.active]:text-foreground focus:outline-none" onclick="ViewLookPage.activateCategory('res-cat-${id}', this)">${text}</button>`;
+        return `<button class="res-cat-link px-6 py-4 font-mono text-[10px] sm:text-xs uppercase tracking-[0.2em] font-bold text-foreground/50 dark:text-background/50 hover:text-foreground dark:hover:text-background transition-colors whitespace-nowrap border-b-[3px] border-transparent [&.active]:border-brand [&.active]:text-foreground dark:[&.active]:text-background focus:outline-none" onclick="ViewLookPage.activateCategory('res-cat-${id}', this)">${text}</button>`;
     }
 
     function _getColorStyle(colorName) {
@@ -69,12 +69,12 @@ const ViewLookPage = (() => {
         let pagesHtml = items.map((item, idx) => `
             <div class="res-page-container absolute inset-0 p-6 pb-10 transition-all duration-700 ease-[var(--ease-out-expo)]" data-page="${idx}" style="opacity: ${idx === 0 ? '1' : '0'}; transform: translateX(${idx === 0 ? '0' : '1.5rem'}); pointer-events: ${idx === 0 ? 'auto' : 'none'};">
                 <div class="relative flex flex-col border-[4px] border-brand shadow-[0_20px_50px_rgba(0,0,0,0.3)] h-full w-full overflow-hidden rounded-sm">
-                    <img src="${item.image}" alt="${item.name.replace(/'/g, "&#39;")}" class="absolute inset-0 w-full h-full object-cover" onerror="this.onerror=null; this.src='https://image.pollinations.ai/prompt/${encodeURIComponent(item.name + ' fashion')}?width=400&height=500&nologo=true';">
+                    <img src="${item.image}" alt="${escapeHtml(item.name)}" class="absolute inset-0 w-full h-full object-cover" onerror="this.onerror=null; this.src='https://image.pollinations.ai/prompt/${encodeURIComponent(item.name + ' fashion')}?width=400&height=500&nologo=true';">
                     <div class="absolute top-0 inset-x-0 h-1/4 bg-gradient-to-b from-black/50 to-transparent pointer-events-none"></div>
                     <div class="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
                     <div class="absolute top-6 left-6 font-mono text-[10px] text-white tracking-[0.3em] font-bold z-10">0${idx + 1}</div>
                     <div class="absolute bottom-0 left-0 w-full p-4 sm:p-6 lg:p-8 flex flex-col gap-2 z-10">
-                        <span class="text-xl lg:text-3xl font-extrabold uppercase tracking-tighter text-white leading-none">${item.name}</span>
+                        <span class="text-xl lg:text-3xl font-extrabold uppercase tracking-tighter text-white leading-none">${escapeHtml(item.name)}</span>
                     </div>
                 </div>
             </div>
@@ -83,7 +83,7 @@ const ViewLookPage = (() => {
         let dotsHtml = '';
         if (items.length > 1) {
             dotsHtml = Array.from({length: items.length}).map((_, i) => 
-                `<div class="w-2 h-2 rounded-full border border-foreground transition-colors ${i === 0 ? 'bg-foreground' : 'bg-transparent'}"></div>`
+                `<div class="w-2 h-2 rounded-full border border-foreground dark:border-background transition-colors ${i === 0 ? 'bg-foreground dark:bg-background' : 'bg-transparent'}"></div>`
             ).join('');
         }
 
@@ -144,8 +144,9 @@ const ViewLookPage = (() => {
         }
 
         state.dots.forEach((d, idx) => {
-            if (idx === state.currentPage) d.classList.replace('bg-transparent', 'bg-foreground');
-            else d.classList.replace('bg-foreground', 'bg-transparent');
+            d.classList.remove('bg-transparent', 'bg-foreground', 'dark:bg-background');
+            if (idx === state.currentPage) d.classList.add('bg-foreground', 'dark:bg-background');
+            else d.classList.add('bg-transparent');
         });
 
         state.pages.forEach((page, idx) => {
@@ -238,15 +239,15 @@ const ViewLookPage = (() => {
 
 
         viewsHtml += `
-        <div class="collection-view flex w-full lg:w-[35%] h-[40%] lg:h-full flex-col border-b lg:border-b-0 lg:border-r border-foreground relative overflow-hidden bg-background" data-collection-idx="${idx}">
-            <div class="z-40 border-b border-foreground/20 flex overflow-x-auto no-scrollbar shrink-0 px-2 pt-2">
+        <div class="collection-view flex w-full lg:w-[35%] h-[40%] lg:h-full flex-col border-b lg:border-b-0 lg:border-r border-foreground dark:border-background relative overflow-hidden bg-background dark:bg-foreground" data-collection-idx="${idx}">
+            <div class="z-40 border-b border-foreground/20 dark:border-background/20 flex overflow-x-auto no-scrollbar shrink-0 px-2 pt-2">
                 ${activeCats.map(c => _buildLink(c + '-' + idx, catNames[c])).join('')}
             </div>
             <div class="flex-grow relative overflow-hidden">
-                <button class="res-prev-btn-carousel absolute left-2 top-1/2 -translate-y-1/2 z-50 w-8 h-8 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed hidden">
+                <button class="res-prev-btn-carousel absolute left-2 top-1/2 -translate-y-1/2 z-50 w-8 h-8 bg-background/80 dark:bg-foreground/80 backdrop-blur border border-foreground dark:border-background flex items-center justify-center rounded-full text-foreground dark:text-background hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground transition-colors disabled:opacity-0 disabled:cursor-not-allowed hidden" aria-label="Previous Page">
                     <span class="material-symbols-outlined text-lg">chevron_left</span>
                 </button>
-                <button class="res-next-btn-carousel absolute right-2 top-1/2 -translate-y-1/2 z-50 w-8 h-8 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed hidden">
+                <button class="res-next-btn-carousel absolute right-2 top-1/2 -translate-y-1/2 z-50 w-8 h-8 bg-background/80 dark:bg-foreground/80 backdrop-blur border border-foreground dark:border-background flex items-center justify-center rounded-full text-foreground dark:text-background hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground transition-colors disabled:opacity-0 disabled:cursor-not-allowed hidden" aria-label="Next Page">
                     <span class="material-symbols-outlined text-lg">chevron_right</span>
                 </button>
                 ${activeCats.map(c => _renderResultCategory(c, catItems[c], idx)).join('')}
@@ -256,15 +257,15 @@ const ViewLookPage = (() => {
         <!-- Right Side -->
         <div class="collection-view flex w-full lg:w-[65%] h-[60%] lg:h-full flex-col bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwgMCwgMCwgMC4wNSkiLz48L3N2Zz4=')] overflow-y-auto p-6 lg:p-12 relative" data-collection-idx="${idx}">
             
-            <div class="flex flex-col xl:flex-row xl:items-end justify-between border-b-[2px] border-foreground pb-6 mb-10 gap-6">
+            <div class="flex flex-col xl:flex-row xl:items-end justify-between border-b-[2px] border-foreground dark:border-background pb-6 mb-10 gap-6">
                 <h2 class="font-sans font-extrabold text-4xl lg:text-5xl uppercase tracking-tighter leading-none text-brand">${outfit.name || 'Shared Look'}</h2>
                 
                 <!-- Dual Scoreboard -->
                 <div class="flex items-stretch gap-4 shrink-0">
                     <!-- Current Score -->
-                    <div class="flex flex-col items-center justify-center px-4 py-3 border-[2px] border-foreground bg-background shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+                    <div class="flex flex-col items-center justify-center px-4 py-3 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
                         <span class="font-mono text-[9px] uppercase tracking-widest font-bold text-muted-foreground mb-1">YOUR BASE</span>
-                        <span class="font-mono text-3xl font-black text-foreground">${outfit.currentScore || 70}</span>
+                        <span class="font-mono text-3xl font-black text-foreground dark:text-background">${outfit.currentScore || 70}</span>
                     </div>
                     
                     <!-- Arrow -->
@@ -282,23 +283,23 @@ const ViewLookPage = (() => {
 
             <div class="flex items-center gap-4 mb-8">
                 <span class="font-mono text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground">OUTFIT COMPOSITION</span>
-                <div class="h-px bg-foreground/20 flex-grow"></div>
+                <div class="h-px bg-foreground/20 dark:bg-background/20 flex-grow"></div>
             </div>
 
             <div class="flex flex-col gap-8 pb-12">
                 ${accessories.length > 0 ? accessories.map((acc, i) => `
-                    <div class="border-[2px] border-foreground bg-background p-6 lg:p-8 flex flex-col relative transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+                    <div class="border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground p-6 lg:p-8 flex flex-col relative transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
                         <div class="absolute top-6 right-6 font-mono text-[10px] text-muted-foreground tracking-[0.3em] font-bold">0${i + 1}</div>
                         
                         <span class="font-mono text-[10px] text-brand tracking-widest uppercase mb-2 block">${acc.category || 'Recommended'}</span>
                         <h3 class="font-sans font-extrabold text-2xl uppercase tracking-tighter mb-4 leading-tight">${acc.name}</h3>
-                        ${acc.why || acc.description ? `<p class="font-mono text-xs text-foreground/80 leading-relaxed max-w-2xl mb-6">${acc.why || acc.description}</p>` : ''}
+                        ${acc.why || acc.description ? `<p class="font-mono text-xs text-foreground/80 dark:text-background/80 leading-relaxed max-w-2xl mb-6">${acc.why || acc.description}</p>` : ''}
                         
                         ${acc.colors && (acc.colors.match || acc.colors.avoid) ? `
-                        <div class="flex flex-col gap-3 pt-4 border-t border-foreground/20">
+                        <div class="flex flex-col gap-3 pt-4 border-t border-foreground/20 dark:border-background/20">
                             ${acc.colors.match && acc.colors.match.length > 0 ? `
                             <div class="flex items-center gap-3 flex-wrap">
-                                <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground/50 w-16">WORKS WELL WITH</span>
+                                <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground/50 dark:text-background/50 w-16">WORKS WELL WITH</span>
                                 ${acc.colors.match.map(c => `<span class="font-mono text-[10px] uppercase border px-2 py-1 shadow-sm font-bold rounded-sm" style="${_getColorStyle(c) || 'background-color: transparent; border-color: rgba(0,0,0,0.2);'}">${c}</span>`).join('')}
                             </div>` : ''}
                             
@@ -311,7 +312,7 @@ const ViewLookPage = (() => {
                         ` : ''}
                     </div>
                 `).join('') : `
-                    <div class="border border-foreground/20 bg-foreground/5 p-6 lg:p-8 flex items-center justify-center text-center">
+                    <div class="border border-foreground/20 dark:border-background/20 bg-foreground/5 dark:bg-background/5 p-6 lg:p-8 flex items-center justify-center text-center">
                         <span class="font-mono text-xs uppercase tracking-widest text-muted-foreground font-bold">No additional accessories recommended</span>
                     </div>
                 `}
@@ -320,30 +321,30 @@ const ViewLookPage = (() => {
         `;
 
         const splitLayoutHtml = `
-        <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground bg-background px-6 py-4 shrink-0">
+        <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground dark:border-background bg-background dark:bg-foreground px-6 py-4 shrink-0">
             <div class="font-mono text-xs font-bold tracking-tighter cursor-pointer" onclick="window.Router.navigate('/landing')">
                 FASHIONWARDROBE<sup class="ml-1 text-brand">®</sup>
             </div>
             <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
-                <span class="hidden sm:inline-block border border-foreground px-3 py-1 bg-brand text-brand-foreground font-bold">VIEWING SHARED LOOK</span>
+                <span class="hidden sm:inline-block border border-foreground dark:border-background px-3 py-1 bg-brand text-brand-foreground font-bold">VIEWING SHARED LOOK</span>
                 <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="window.Router.navigate('/landing')">
                     <span class="material-symbols-outlined text-[14px]">close</span>
                 </button>
             </div>
         </nav>
 
-        <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground h-full overflow-hidden">
+        <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground dark:border-background h-full overflow-hidden">
             ${viewsHtml}
         </main>
 
-        <footer class="bg-background flex flex-col md:flex-row items-stretch shrink-0 z-50 relative">
-            <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground">
-                <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted hover:text-foreground transition-colors flex items-center group" onclick="window.history.length > 1 ? history.back() : window.Router.navigate('/landing')">
+        <footer class="bg-background dark:bg-foreground flex flex-col md:flex-row items-stretch shrink-0 z-50 relative">
+            <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground dark:border-background">
+                <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/50 dark:text-background/50 hover:text-foreground dark:hover:text-background transition-colors flex items-center group" onclick="window.history.length > 1 ? history.back() : window.Router.navigate('/landing')">
                     <span class="material-symbols-outlined text-[14px] mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span> BACK
                 </button>
             </div>
             <div class="flex-1 flex items-stretch">
-                <button class="flex-1 bg-background text-foreground font-mono text-xs uppercase tracking-widest p-6 transition-all hover:bg-foreground/5 flex items-center justify-center gap-3" onclick="window.Router.navigate('/gender')">
+                <button class="flex-1 bg-background dark:bg-foreground text-foreground dark:text-background font-mono text-xs uppercase tracking-widest p-6 transition-all hover:bg-foreground/5 dark:hover:bg-background/5 flex items-center justify-center gap-3" onclick="window.Router.navigate('/gender')">
                     <span class="material-symbols-outlined">auto_awesome</span> Create Your Own
                 </button>
             </div>

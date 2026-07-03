@@ -14,6 +14,7 @@ const Store = (() => {
         stylePersonality: [],
         currentOutfit: {
             topwear: [],
+            outerwear: [],
             bottomwear: [],
             footwear: [],
             accessories: []

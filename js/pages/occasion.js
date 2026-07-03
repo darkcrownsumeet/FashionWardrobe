@@ -54,14 +54,14 @@ const OccasionPage = (() => {
         }
 
         return `
-<div class="h-screen w-screen bg-background text-foreground flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden">
+<div class="h-screen w-screen bg-background dark:bg-foreground text-foreground dark:text-background flex flex-col selection:bg-brand selection:text-brand-foreground overflow-hidden">
     <!-- Top Nav -->
-    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground bg-background px-6 py-4">
+    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground dark:border-background bg-background dark:bg-foreground px-6 py-4">
         <div class="font-mono text-xs font-bold tracking-tighter cursor-pointer" onclick="window.Router.navigate('/landing')">
             FASHIONWARDROBE<sup class="ml-1 text-brand">®</sup>
         </div>
         <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
-            <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 02 / 06</span>
+            <span class="hidden sm:inline-block border border-foreground dark:border-background px-3 py-1">INDEX 02 / 06</span>
             <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startOccasionTour()" title="Replay Walkthrough">
                 <span class="material-symbols-outlined text-[14px]">help</span>
             </button>
@@ -72,32 +72,32 @@ const OccasionPage = (() => {
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground h-full overflow-hidden">
+    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground dark:border-background h-full overflow-hidden">
         
         <!-- Left Side: Copy -->
-        <div class="w-full lg:w-[35%] h-[30%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground p-6 lg:p-12 relative overflow-hidden">
+        <div class="w-full lg:w-[35%] h-[30%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground dark:border-background p-6 lg:p-12 relative overflow-hidden">
             <div class="mt-2 lg:mt-8 z-10">
                 <div class="flex items-center gap-3 mb-2 lg:mb-6">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand block">Step 02 / 07</span>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand block">Step 02 / 05</span>
                 </div>
                 <h1 class="text-3xl lg:text-[clamp(2.5rem,4vw,4.5rem)] font-extrabold uppercase leading-[0.85] tracking-tighter font-sans antialiased mb-2 lg:mb-6">
                     What's the<br>
                     <span class="text-brand">occasion</span>?
                 </h1>
                 <div class="flex gap-4 items-start mb-12">
-                    <div class="w-1 h-full bg-foreground/10 flex-shrink-0 mt-2"></div>
+                    <div class="w-1 h-full bg-foreground/10 dark:bg-background/10 flex-shrink-0 mt-2"></div>
                     <p class="font-mono text-[10px] lg:text-xs leading-relaxed text-muted max-w-sm uppercase tracking-widest hidden sm:block">
                         Select the primary setting for your next look.
                     </p>
                 </div>
 
                 <!-- Prominent Counter -->
-                <div class="inline-flex items-center gap-4 px-6 py-4 border-[2px] border-foreground bg-background shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] w-fit transition-all duration-300" id="selection-counter-box">
+                <div class="inline-flex items-center gap-4 px-6 py-4 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] w-fit transition-all duration-300" id="selection-counter-box">
                     <div class="flex items-baseline gap-1">
                         <span class="font-mono text-3xl font-black text-brand" id="selection-counter-num">${saved.length > 0 ? '1' : '0'}</span>
-                        <span class="font-mono text-lg font-bold text-foreground">/1</span>
+                        <span class="font-mono text-lg font-bold text-foreground dark:text-background">/1</span>
                     </div>
-                    <div class="w-px h-8 bg-foreground/20"></div>
+                    <div class="w-px h-8 bg-foreground/20 dark:bg-background/20"></div>
                     <span class="font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">SELECTED</span>
                 </div>
             </div>
@@ -106,10 +106,10 @@ const OccasionPage = (() => {
         <!-- Right Side: Cards -->
         <div id="lookbook-container" class="w-full lg:w-[65%] h-[70%] lg:h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMCwgMCwgMCwgMC4wNSkiLz48L3N2Zz4=')] overflow-hidden relative">
             <!-- Carousel Arrows -->
-            <button id="prev-btn" class="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
+            <button id="prev-btn" class="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 dark:bg-foreground/80 backdrop-blur border border-foreground dark:border-background flex items-center justify-center rounded-full hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
                 <span class="material-symbols-outlined text-2xl">chevron_left</span>
             </button>
-            <button id="next-btn" class="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 backdrop-blur border border-foreground flex items-center justify-center rounded-full hover:bg-foreground hover:text-background transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
+            <button id="next-btn" class="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-50 w-12 h-12 bg-background/80 dark:bg-foreground/80 backdrop-blur border border-foreground dark:border-background flex items-center justify-center rounded-full hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground transition-colors disabled:opacity-0 disabled:cursor-not-allowed">
                 <span class="material-symbols-outlined text-2xl">chevron_right</span>
             </button>
             
@@ -122,9 +122,9 @@ const OccasionPage = (() => {
     </main>
 
     <!-- Bottom Bar -->
-    <footer class="bg-background flex flex-col md:flex-row items-stretch border-t border-foreground shrink-0 z-50 relative">
-        <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground">
-            <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-muted hover:text-foreground transition-colors flex items-center group" onclick="window.Router.navigate('/gender')">
+    <footer class="bg-background dark:bg-foreground flex flex-col md:flex-row items-stretch border-t border-foreground dark:border-background shrink-0 z-50 relative">
+        <div class="flex-1 p-6 flex items-center justify-between md:justify-start gap-12 border-b md:border-b-0 md:border-r border-foreground dark:border-background">
+            <button class="font-mono text-[10px] uppercase tracking-[0.3em] text-foreground/50 dark:text-background/50 hover:text-foreground dark:hover:text-background transition-colors flex items-center group" onclick="window.Router.navigate('/gender')">
                 <span class="material-symbols-outlined text-[14px] mr-2 group-hover:-translate-x-1 transition-transform">arrow_back</span> BACK
             </button>
         </div>
@@ -161,14 +161,14 @@ const OccasionPage = (() => {
         
         // Generate Dots
         dotsContainer.innerHTML = Array.from({length: totalPages}).map((_, i) => 
-            `<div class="w-2 h-2 rounded-full border border-foreground transition-colors ${i === 0 ? 'bg-foreground' : 'bg-transparent'}"></div>`
+            `<div class="w-2 h-2 rounded-full border border-foreground dark:border-background transition-colors ${i === 0 ? 'bg-foreground dark:bg-background' : 'bg-transparent'}"></div>`
         ).join('');
         const dots = dotsContainer.querySelectorAll('div');
 
         function updatePageState() {
             // Update dots
             dots.forEach((d, i) => {
-                d.className = `w-2 h-2 rounded-full border border-foreground transition-colors ${i === currentPage ? 'bg-foreground' : 'bg-transparent'}`;
+                d.className = `w-2 h-2 rounded-full border border-foreground dark:border-background transition-colors ${i === currentPage ? 'bg-foreground dark:bg-background' : 'bg-transparent'}`;
             });
             
             prevBtn.disabled = currentPage === 0;

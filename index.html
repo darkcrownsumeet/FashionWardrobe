@@ -282,22 +282,42 @@
 
     <!-- App Styles -->
     <link rel="stylesheet" href="css/app.css?v=8" />
+    <!-- Reduced Motion -->
+    <style>
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+    </style>
 </head>
 
 <body
-    class="custom-scrollbar bg-background text-on-background font-body-md overflow-x-clip selection:bg-primary selection:text-on-primary antialiased [text-rendering:optimizeLegibility]">
+    class="custom-scrollbar bg-background dark:bg-foreground text-on-background dark:text-background font-body-md overflow-x-clip selection:bg-primary selection:text-on-primary antialiased [text-rendering:optimizeLegibility]">
+
+    <!-- Dark Mode Toggle -->
+    <button id="theme-toggle" class="fixed bottom-6 right-6 z-[99999] flex h-12 w-12 items-center justify-center rounded-full bg-foreground dark:bg-background text-background dark:text-foreground shadow-2xl transition-transform hover:scale-110 border border-background/20" onclick="document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');">
+        <span class="material-symbols-outlined">contrast</span>
+    </button>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
+    </script>
 
     <!-- Persistent Nav (outside #app so fixed positioning isn't broken by page-enter transform) -->
     <div id="persistent-nav"></div>
 
     <!-- App Toast -->
-    <div id="app-toast" class="toast"></div>
+    <div id="app-toast" class="toast" role="status" aria-live="polite"></div>
 
     <!-- App Container -->
     <div id="app"></div>
 
     <!-- Scripts (order matters: dependencies first) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="js/utils/html.js?v=1"></script>
     <script src="js/data/mock-data.js?v=105"></script>
     <script src="js/store.js?v=8"></script>
     <script src="js/walkthrough.js?v=7"></script>
@@ -310,7 +330,7 @@
     <script src="js/pages/style.js?v=16"></script>
     <script src="js/pages/outfit.js?v=33"></script>
     <script src="js/pages/color.js?v=29"></script>
-    <script src="js/pages/results_new.js?v=2"></script>
+    <script src="js/pages/results.js?v=3"></script>
     <script src="js/pages/archive.js?v=1"></script>
     <script src="js/pages/view_look.js?v=1"></script>
     <script src="js/pages/wishlist.js?v=7"></script>

@@ -10,15 +10,15 @@ window.GenderPage = (function() {
         }
 
         return `
-<div class="h-screen w-screen flex flex-col overflow-hidden bg-background animate-fade-in relative">
+<div class="h-screen w-screen flex flex-col overflow-hidden bg-background dark:bg-foreground animate-fade-in relative">
     
     <!-- Top Nav -->
-    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground bg-background px-6 py-4">
+    <nav class="sticky top-0 z-50 flex items-baseline justify-between border-b border-foreground dark:border-background bg-background dark:bg-foreground px-6 py-4">
         <div class="font-mono text-xs font-bold tracking-tighter cursor-pointer" onclick="window.Router.navigate('/landing')">
             FASHIONWARDROBE<sup class="ml-1 text-brand">®</sup>
         </div>
         <div class="flex items-center gap-8 font-mono text-[10px] uppercase tracking-widest">
-            <span class="hidden sm:inline-block border border-foreground px-3 py-1">INDEX 01 / 06</span>
+            <span class="hidden sm:inline-block border border-foreground dark:border-background px-3 py-1">INDEX 01 / 06</span>
             <button class="transition-colors hover:text-brand flex items-center gap-2" onclick="if(window.Walkthrough) window.Walkthrough.startGenderTour()" title="Replay Walkthrough">
                 <span class="material-symbols-outlined text-[14px]">help</span>
             </button>
@@ -29,13 +29,13 @@ window.GenderPage = (function() {
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground h-full overflow-hidden">
+    <main class="flex-grow flex flex-col lg:flex-row border-b border-foreground dark:border-background h-full overflow-hidden">
         
         <!-- Left Side: Copy -->
-        <div class="w-full lg:w-[35%] h-[40%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground p-6 lg:p-12 relative overflow-hidden">
+        <div class="w-full lg:w-[35%] h-[40%] lg:h-full flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-foreground dark:border-background p-6 lg:p-12 relative overflow-hidden">
             <div class="mt-2 lg:mt-8 z-10">
                 <div class="flex items-center gap-3 mb-2 lg:mb-6">
-                    <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand block">Step 01 / 07</span>
+                    <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand block">Step 01 / 05</span>
                 </div>
                 <h1 class="text-3xl lg:text-[clamp(2.5rem,4vw,4.5rem)] font-extrabold uppercase leading-[0.85] tracking-tighter font-sans antialiased mb-2 lg:mb-6">
                     Who are we<br>
@@ -43,19 +43,19 @@ window.GenderPage = (function() {
                     today?
                 </h1>
                 <div class="flex gap-4 items-start mb-12">
-                    <div class="w-1 h-full bg-foreground/10 flex-shrink-0 mt-2"></div>
+                    <div class="w-1 h-full bg-foreground/10 dark:bg-background/10 flex-shrink-0 mt-2"></div>
                     <p class="font-mono text-[10px] lg:text-xs leading-relaxed text-muted max-w-sm uppercase tracking-widest hidden sm:block">
                         Choose a style profile to begin your curated journey. Our styling engine adapts to your base selection.
                     </p>
                 </div>
 
                 <!-- Prominent Counter -->
-                <div class="inline-flex items-center gap-4 px-6 py-4 border-[2px] border-foreground bg-background shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] w-fit transition-all duration-300" id="selection-counter-box">
+                <div class="inline-flex items-center gap-4 px-6 py-4 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] w-fit transition-all duration-300" id="selection-counter-box">
                     <div class="flex items-baseline gap-1">
                         <span class="font-mono text-3xl font-black text-brand" id="selection-counter-num">${saved ? '1' : '0'}</span>
-                        <span class="font-mono text-lg font-bold text-foreground">/1</span>
+                        <span class="font-mono text-lg font-bold text-foreground dark:text-background">/1</span>
                     </div>
-                    <div class="w-px h-8 bg-foreground/20"></div>
+                    <div class="w-px h-8 bg-foreground/20 dark:bg-background/20"></div>
                     <span class="font-mono text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground">SELECTED</span>
                 </div>
             </div>
@@ -122,8 +122,8 @@ window.GenderPage = (function() {
     </main>
 
     <!-- Bottom Bar -->
-    <footer class="bg-background flex flex-col md:flex-row items-stretch border-t border-foreground">
-        <div class="flex-1 p-6 flex flex-col justify-center border-b md:border-b-0 md:border-r border-foreground">
+    <footer class="bg-background dark:bg-foreground flex flex-col md:flex-row items-stretch border-t border-foreground dark:border-background">
+        <div class="flex-1 p-6 flex flex-col justify-center border-b md:border-b-0 md:border-r border-foreground dark:border-background">
             <span class="font-mono text-[10px] uppercase tracking-[0.3em] text-brand mb-2">Bespoke Styling</span>
             <p class="font-mono text-xs text-muted uppercase tracking-widest">Curating pieces that define your signature look.</p>
         </div>

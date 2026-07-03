@@ -11,24 +11,24 @@ const AuthPage = (() => {
             const auth = Store.getAuth();
             return `
 <!-- Back Button -->
-<button class="fixed top-6 left-6 z-50 border-[2px] border-foreground bg-background hover:bg-foreground hover:text-background p-3 transition-colors flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1" onclick="window.history.length > 1 ? history.back() : Router.navigate('/landing')">
+<button class="fixed top-6 left-6 z-50 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground p-3 transition-colors flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1" onclick="window.history.length > 1 ? history.back() : Router.navigate('/landing')">
     <span class="material-symbols-outlined text-[18px]">arrow_back</span>
 </button>
-<main class="flex items-center justify-center min-h-screen bg-background px-4">
-    <div class="bg-background p-12 border-[2px] border-foreground shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] max-w-md w-full text-center relative">
+<main class="flex items-center justify-center min-h-screen bg-background dark:bg-foreground px-4">
+    <div class="bg-background dark:bg-foreground p-12 border-[2px] border-foreground dark:border-background shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] dark:shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] max-w-md w-full text-center relative">
         <div class="absolute top-4 right-4 text-[10px] font-mono tracking-widest font-bold text-muted-foreground">ID: AUTH_SUCCESS</div>
         
-        <div class="w-24 h-24 mx-auto border-[2px] border-foreground bg-brand text-brand-foreground flex items-center justify-center font-sans font-black text-5xl mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div class="w-24 h-24 mx-auto border-[2px] border-foreground dark:border-background bg-brand text-brand-foreground flex items-center justify-center font-sans font-black text-5xl mb-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             ${auth.name ? auth.name.charAt(0).toUpperCase() : 'U'}
         </div>
-        <h2 class="font-sans font-black text-4xl uppercase tracking-tighter text-foreground mb-2">${auth.name || 'USER'}</h2>
+        <h2 class="font-sans font-black text-4xl uppercase tracking-tighter text-foreground dark:text-background mb-2">${auth.name || 'USER'}</h2>
         <p class="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-12">${auth.email || 'GUEST_OVERRIDE_ACTIVE'}</p>
         
         <div class="space-y-4">
             <button class="w-full bg-brand text-brand-foreground py-5 font-mono text-xs uppercase tracking-[0.2em] font-bold border-[2px] border-brand hover:bg-background hover:text-brand transition-colors shadow-[4px_4px_0px_0px_rgba(255,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1" onclick="Router.navigate('/archive')">
                 ACCESS ARCHIVE
             </button>
-            <button id="signout-btn" class="w-full bg-background text-foreground py-5 border-[2px] border-foreground font-mono text-xs uppercase tracking-[0.2em] font-bold hover:bg-foreground hover:text-background transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1">
+            <button id="signout-btn" class="w-full bg-background dark:bg-foreground text-foreground dark:text-background py-5 border-[2px] border-foreground dark:border-background font-mono text-xs uppercase tracking-[0.2em] font-bold hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1">
                 TERMINATE SESSION
             </button>
         </div>
@@ -39,45 +39,45 @@ const AuthPage = (() => {
 
         return `
 <!-- Back Button -->
-<button class="fixed top-6 left-6 z-50 border-[2px] border-foreground bg-background hover:bg-foreground hover:text-background p-3 transition-colors flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 lg:hidden" onclick="window.history.length > 1 ? history.back() : Router.navigate('/landing')">
+<button class="fixed top-6 left-6 z-50 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground p-3 transition-colors flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 lg:hidden" onclick="window.history.length > 1 ? history.back() : Router.navigate('/landing')">
     <span class="material-symbols-outlined text-[18px]">arrow_back</span>
 </button>
 
 <main class="flex min-h-screen">
     <!-- Left Side: Editorial Image -->
-    <section class="hidden lg:flex lg:w-1/2 relative border-r-[2px] border-foreground bg-foreground p-12 flex-col justify-between">
+    <section class="hidden lg:flex lg:w-1/2 relative border-r-[2px] border-foreground dark:border-background bg-foreground dark:bg-background p-12 flex-col justify-between">
         <div class="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed opacity-50 grayscale" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBFYV8uoW8IRlgSICAMQ-SOmrQIEZbCRSMQz_EQYO1iGJAqbJwjCCgNNEWm7IhvY_1wgmpt3dczMTNZ_lku-zx4X1NtW0cqaIM0mteaViUH3NLsloLTD9J0_azh7oFclIkX9KWpC8Y4wDuT5_qZGuD2hCuKT_TpPeww92DfSjSXTLZclwiJTbNkn-r7ILq78JLKYxD6Oy88LDmy0FVVMV-5QPGUG0VFSDOAWJIg03WUWyQAS5CVZE6lel4p45oSBLdCrEIgqFCzEw');"></div>
         <div class="relative z-20">
-            <h1 class="font-sans font-black text-6xl text-background uppercase tracking-tighter cursor-pointer" onclick="Router.navigate('/landing')">FASHIONWARDROBE</h1>
+            <h1 class="font-sans font-black text-6xl text-background dark:text-foreground uppercase tracking-tighter cursor-pointer" onclick="Router.navigate('/landing')">FASHIONWARDROBE</h1>
         </div>
         <div class="relative z-20 max-w-md">
             <p class="font-mono text-[10px] text-brand tracking-widest uppercase mb-4 font-bold border border-brand px-3 py-1 inline-block">MAISON EDITION</p>
-            <p class="font-mono text-sm text-background/80 leading-relaxed uppercase tracking-wider">Curation meets intelligence. Welcome to the next evolution of your personal style journey.</p>
+            <p class="font-mono text-sm text-background/80 dark:text-foreground/80 leading-relaxed uppercase tracking-wider">Curation meets intelligence. Welcome to the next evolution of your personal style journey.</p>
         </div>
     </section>
 
     <!-- Right Side: Authentication UI -->
-    <section class="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 sm:px-12 md:px-24 bg-background min-h-screen relative">
-        <button class="hidden lg:flex absolute top-8 left-8 border-[2px] border-foreground bg-background hover:bg-foreground hover:text-background p-3 transition-colors items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1" onclick="window.history.length > 1 ? history.back() : Router.navigate('/landing')">
+    <section class="w-full lg:w-1/2 flex flex-col justify-center items-center px-6 sm:px-12 md:px-24 bg-background dark:bg-foreground min-h-screen relative">
+        <button class="hidden lg:flex absolute top-8 left-8 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground p-3 transition-colors items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1" onclick="window.history.length > 1 ? history.back() : Router.navigate('/landing')">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span>
         </button>
 
         <div class="w-full max-w-[440px] space-y-8">
             <!-- Brand Mobile Only -->
             <div class="lg:hidden mb-8">
-                <h1 class="font-sans font-black text-4xl uppercase tracking-tighter text-foreground cursor-pointer" onclick="Router.navigate('/landing')">FASHIONWARDROBE</h1>
+                <h1 class="font-sans font-black text-4xl uppercase tracking-tighter text-foreground dark:text-background cursor-pointer" onclick="Router.navigate('/landing')">FASHIONWARDROBE</h1>
             </div>
             
             <!-- Header -->
             <div class="space-y-2" id="auth-header">
-                <h2 class="font-sans font-black text-4xl uppercase tracking-tighter text-foreground leading-none" id="auth-title">USER LOGIN</h2>
-                <p class="text-muted-foreground font-mono text-[10px] uppercase tracking-widest leading-relaxed" id="auth-subtitle">ENTER YOUR CREDENTIALS TO ACCESS YOUR PROFILE.</p>
+                <h2 class="font-sans font-black text-4xl uppercase tracking-tighter text-foreground dark:text-background leading-none" id="auth-title">SIGN IN</h2>
+                <p class="text-muted-foreground font-mono text-[10px] uppercase tracking-widest leading-relaxed" id="auth-subtitle">SIGN IN TO REMEMBER YOUR STYLE PREFERENCES LOCALLY.</p>
             </div>
             
             <!-- Social Actions -->
             <div class="grid grid-cols-1 gap-4" id="social-buttons">
                 <div id="google-btn-wrapper" class="w-full flex justify-center items-center"></div>
-                <button id="guest-login-btn" class="flex items-center justify-center gap-3 w-full py-3 border-[2px] border-foreground bg-background text-foreground hover:bg-foreground hover:text-background transition-colors font-mono text-xs uppercase tracking-[0.2em] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] group">
+                <button id="guest-login-btn" class="flex items-center justify-center gap-3 w-full py-3 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground text-foreground dark:text-background hover:bg-foreground dark:hover:bg-background hover:text-background dark:hover:text-foreground transition-colors font-mono text-xs uppercase tracking-[0.2em] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] group">
                     <span class="material-symbols-outlined text-[18px]">person</span>
                     <span>GUEST OVERRIDE</span>
                 </button>
@@ -85,10 +85,10 @@ const AuthPage = (() => {
             
             <div class="relative py-4">
                 <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t-[2px] border-foreground/20"></div>
+                    <div class="w-full border-t-[2px] border-foreground/20 dark:border-background/20"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-4 bg-background text-muted-foreground font-mono text-[10px] uppercase tracking-widest font-bold">OR</span>
+                    <span class="px-4 bg-background dark:bg-foreground text-muted-foreground font-mono text-[10px] uppercase tracking-widest font-bold">OR</span>
                 </div>
             </div>
 
@@ -96,18 +96,18 @@ const AuthPage = (() => {
             <form id="auth-form" class="space-y-4" novalidate>
                 <!-- Name field (only visible in sign-up mode) -->
                 <div class="relative hidden" id="name-field">
-                    <input class="auth-input block w-full px-4 py-3 bg-background border-[2px] border-foreground focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground" id="fullname" placeholder="FULL NAME" type="text"/>
+                    <input class="auth-input block w-full px-4 py-3 bg-background dark:bg-foreground border-[2px] border-foreground dark:border-background focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground" id="fullname" placeholder="FULL NAME" type="text"/>
                     <p class="text-red-500 font-mono text-[10px] uppercase tracking-widest font-bold mt-1 hidden" id="name-error"></p>
                 </div>
 
                 <div class="relative">
-                    <input class="auth-input block w-full px-4 py-3 bg-background border-[2px] border-foreground focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground" id="email" placeholder="EMAIL ADDRESS" type="email"/>
+                    <input class="auth-input block w-full px-4 py-3 bg-background dark:bg-foreground border-[2px] border-foreground dark:border-background focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground" id="email" placeholder="EMAIL ADDRESS" type="email"/>
                     <p class="text-red-500 font-mono text-[10px] uppercase tracking-widest font-bold mt-1 hidden" id="email-error"></p>
                 </div>
                 
                 <div class="relative">
-                    <input class="auth-input block w-full px-4 py-3 bg-background border-[2px] border-foreground focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground pr-12" id="password" placeholder="PASSWORD" type="password"/>
-                    <button class="absolute right-4 top-3 text-foreground hover:text-brand transition-colors" type="button" id="toggle-password-btn">
+                    <input class="auth-input block w-full px-4 py-3 bg-background dark:bg-foreground border-[2px] border-foreground dark:border-background focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground pr-12" id="password" placeholder="PASSWORD" type="password"/>
+                    <button class="absolute right-4 top-3 text-foreground dark:text-background hover:text-brand transition-colors" type="button" id="toggle-password-btn">
                         <span class="material-symbols-outlined text-[20px]">visibility</span>
                     </button>
                     <p class="text-red-500 font-mono text-[10px] uppercase tracking-widest font-bold mt-1 hidden" id="password-error"></p>
@@ -115,32 +115,32 @@ const AuthPage = (() => {
 
                 <!-- Confirm password field (only visible in sign-up mode) -->
                 <div class="relative hidden" id="confirm-password-field">
-                    <input class="auth-input block w-full px-4 py-3 bg-background border-[2px] border-foreground focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground" id="confirm-password" placeholder="CONFIRM PASSWORD" type="password"/>
+                    <input class="auth-input block w-full px-4 py-3 bg-background dark:bg-foreground border-[2px] border-foreground dark:border-background focus:outline-none focus:border-brand font-mono text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-colors placeholder:text-muted-foreground" id="confirm-password" placeholder="CONFIRM PASSWORD" type="password"/>
                     <p class="text-red-500 font-mono text-[10px] uppercase tracking-widest font-bold mt-1 hidden" id="confirm-password-error"></p>
                 </div>
 
                 <!-- Remember me / Forgot password (sign-in only) -->
                 <div class="flex items-center justify-between pt-2" id="signin-extras">
                     <label class="flex items-center gap-3 cursor-pointer group">
-                        <input class="w-4 h-4 border-[2px] border-foreground bg-background text-brand focus:ring-brand rounded-none" type="checkbox"/>
-                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground group-hover:text-brand transition-colors">REMEMBER ME</span>
+                        <input class="w-4 h-4 border-[2px] border-foreground dark:border-background bg-background dark:bg-foreground text-brand focus:ring-brand rounded-none" type="checkbox"/>
+                        <span class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground dark:text-background group-hover:text-brand transition-colors">REMEMBER ME</span>
                     </label>
-                    <a class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground hover:text-brand transition-colors border-b border-foreground hover:border-brand" href="#">FORGOT PASSWORD?</a>
+                    <a class="font-mono text-[10px] uppercase tracking-widest font-bold text-foreground dark:text-background hover:text-brand transition-colors border-b border-foreground dark:border-background hover:border-brand" href="#">FORGOT PASSWORD?</a>
                 </div>
 
                 <button type="submit" id="submit-btn" class="w-full bg-brand text-brand-foreground py-4 border-[2px] border-brand font-mono text-sm uppercase tracking-[0.2em] font-bold hover:bg-background hover:text-brand transition-colors shadow-[4px_4px_0px_0px_rgba(255,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 mt-6">
-                    AUTHENTICATE
+                    SIGN IN
                 </button>
                 <p class="text-center font-mono text-[9px] uppercase tracking-widest text-muted-foreground mt-4 max-w-xs mx-auto leading-relaxed">
-                    DATA IS ENCRYPTED AND SECURED LOCALLY ON YOUR DEVICE.
+                    YOUR SELECTIONS ARE SAVED LOCALLY ON THIS DEVICE.
                 </p>
             </form>
             
             <!-- Footer -->
-            <div class="text-center pt-6 border-t-[2px] border-foreground/20" id="auth-footer">
+            <div class="text-center pt-6 border-t-[2px] border-foreground/20 dark:border-background/20" id="auth-footer">
                 <p class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground leading-loose" id="auth-toggle-text">
-                    NEED AN ACCOUNT? 
-                    <a class="text-foreground font-bold hover:text-brand border-b border-foreground hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">CREATE PROFILE</a>
+                    DON'T HAVE PREFERENCES SAVED? 
+                    <a class="text-foreground dark:text-background font-bold hover:text-brand border-b border-foreground dark:border-background hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">SIGN UP</a>
                 </p>
             </div>
         </div>
@@ -156,6 +156,14 @@ const AuthPage = (() => {
     }
 
     // --- Helpers ---
+    function goBackOrHome() {
+        if (window.history.length > 1) {
+            history.back();
+        } else {
+            Router.navigate('/landing');
+        }
+    }
+
     function showError(id, message) {
         const el = document.getElementById(id);
         if (el) {
@@ -199,7 +207,7 @@ const AuthPage = (() => {
             const payload = JSON.parse(jsonPayload);
             Store.setAuth({ type: 'google', email: payload.email, name: payload.name });
             App.showToast(`Signed in as ${payload.name}`);
-            Router.navigate('/landing');
+            goBackOrHome();
         } catch (e) {
             console.error('Error decoding Google JWT', e);
             App.showToast('Failed to parse Google login');
@@ -208,14 +216,14 @@ const AuthPage = (() => {
 
     function switchToSignUp() {
         isSignUpMode = true;
-        document.getElementById('auth-title').textContent = 'CREATE PROFILE';
-        document.getElementById('auth-subtitle').textContent = 'INITIALIZE NEW USER PROFILE AND WARDROBE.';
+        document.getElementById('auth-title').textContent = 'SIGN UP';
+        document.getElementById('auth-subtitle').textContent = 'SIGN UP TO REMEMBER YOUR STYLE PREFERENCES LOCALLY.';
         document.getElementById('name-field').classList.remove('hidden');
         document.getElementById('confirm-password-field').classList.remove('hidden');
         document.getElementById('signin-extras').classList.add('hidden');
-        document.getElementById('submit-btn').textContent = 'INITIALIZE';
+        document.getElementById('submit-btn').textContent = 'SIGN UP';
         document.getElementById('auth-toggle-text').innerHTML = 
-            'ALREADY AUTHORIZED? <a class="text-foreground font-bold hover:text-brand border-b border-foreground hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">USER LOGIN</a>';
+            'ALREADY SAVED PREFERENCES? <a class="text-foreground dark:text-background font-bold hover:text-brand border-b border-foreground dark:border-background hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">SIGN IN</a>';
         // Re-bind toggle
         document.getElementById('toggle-auth-mode')?.addEventListener('click', switchToSignIn);
         clearAllErrors();
@@ -223,14 +231,14 @@ const AuthPage = (() => {
 
     function switchToSignIn() {
         isSignUpMode = false;
-        document.getElementById('auth-title').textContent = 'USER LOGIN';
-        document.getElementById('auth-subtitle').textContent = 'ENTER YOUR CREDENTIALS TO ACCESS YOUR PROFILE.';
+        document.getElementById('auth-title').textContent = 'SIGN IN';
+        document.getElementById('auth-subtitle').textContent = 'SIGN IN TO REMEMBER YOUR STYLE PREFERENCES LOCALLY.';
         document.getElementById('name-field').classList.add('hidden');
         document.getElementById('confirm-password-field').classList.add('hidden');
         document.getElementById('signin-extras').classList.remove('hidden');
-        document.getElementById('submit-btn').textContent = 'AUTHENTICATE';
+        document.getElementById('submit-btn').textContent = 'SIGN IN';
         document.getElementById('auth-toggle-text').innerHTML =
-            'NEED AN ACCOUNT? <a class="text-foreground font-bold hover:text-brand border-b border-foreground hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">CREATE PROFILE</a>';
+            'DON\'T HAVE PREFERENCES SAVED? <a class="text-foreground dark:text-background font-bold hover:text-brand border-b border-foreground dark:border-background hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">SIGN UP</a>';
         // Re-bind toggle
         document.getElementById('toggle-auth-mode')?.addEventListener('click', switchToSignUp);
         clearAllErrors();
@@ -279,7 +287,7 @@ const AuthPage = (() => {
         document.getElementById('guest-login-btn')?.addEventListener('click', () => {
             Store.setAuth({ type: 'guest', email: '', name: 'Guest' });
             App.showToast('Continuing as Guest');
-            Router.navigate('/landing');
+            goBackOrHome();
         });
 
         // --- Email/Password Form with validation ---
@@ -326,7 +334,7 @@ const AuthPage = (() => {
 
                 Store.setAuth({ type: 'email', email, name: fullname });
                 App.showToast('Account created successfully!');
-                Router.navigate('/landing');
+                goBackOrHome();
 
             } else {
                 // --- Sign In Validation ---
@@ -346,7 +354,7 @@ const AuthPage = (() => {
 
                 Store.setAuth({ type: 'email', email, name: email.split('@')[0] });
                 App.showToast('Signed in successfully');
-                Router.navigate('/landing');
+                goBackOrHome();
             }
         });
 
