@@ -21,10 +21,6 @@ const Router = (() => {
     }
 
     function handleRoute() {
-        if (window.RecommendationEngine && RecommendationEngine.abortCurrent) {
-            RecommendationEngine.abortCurrent();
-        }
-
         let fullHash = window.location.hash.slice(1) || '/landing';
         let basePath = fullHash.split('?')[0];
         let targetPath = basePath;
@@ -46,6 +42,15 @@ const Router = (() => {
             return;
         }
         // --------------------
+
+        // Only abort recommendation engine when navigating AWAY from /results
+        // (not when arriving at /results, which would kill our own request)
+        if (targetPath !== '/results') {
+            if (window.RecommendationEngine && RecommendationEngine.abortCurrent) {
+                RecommendationEngine.abortCurrent();
+            }
+        }
+
 
         const pageModule = routes[basePath] || routes['/landing'];
 
