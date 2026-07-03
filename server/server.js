@@ -71,10 +71,19 @@ app.post('/api/recommend', async (req, res) => {
         res.write(`data: ${JSON.stringify(data)}\n\n`);
     };
 
+    // Keepalive heartbeat every 20s — prevents proxy/browser from killing the idle SSE connection
+    // while Qwen or Gemini is processing (can take 60-120s on Render free tier)
+    const keepaliveId = setInterval(() => {
+        if (!isClientConnected) { clearInterval(keepaliveId); return; }
+        res.write(`: keepalive\n\n`);
+    }, 20000);
+
     try {
         await runRecommendationPipeline(req.body, sendEvent);
+        clearInterval(keepaliveId);
         if (isClientConnected) res.end();
     } catch (error) {
+        clearInterval(keepaliveId);
         const duration = Date.now() - startTime;
         console.error(JSON.stringify({
             timestamp: new Date().toISOString(),

@@ -51,7 +51,8 @@ const RecommendationEngine = (() => {
             : 'https://fashionwardrobe-api.onrender.com';
 
         activeController = new AbortController();
-        const timeoutId = setTimeout(() => { if (activeController) activeController.abort(); }, 90000);
+        // 180s to accommodate Render cold-start (up to 60s) + slow LLM calls
+        const timeoutId = setTimeout(() => { if (activeController) activeController.abort(); }, 180000);
 
         // Call the backend API
         try {
