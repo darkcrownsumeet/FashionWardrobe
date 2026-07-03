@@ -240,20 +240,20 @@ Analyzes the user's wardrobe and returns styled outfit recommendations by stream
 
 ## 🔒 Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `GEMINI_API_KEY` | ✅ Required | Your Google Gemini API key (primary engine) |
-| `PORT` | Optional | Port for the backend server (default: `4000`) |
-| `FRONTEND_URL` | Optional | Allowed CORS origin. Required in production (e.g. `https://yourapp.com`) |
-| `DEBUG_PIPELINE` | Optional | Set to `true` to enable verbose logging and metrics dump. **Never enable in production.** |
-| `OPENROUTER_API_KEY` | Optional | API key for OpenRouter fallback provider |
-| `NVIDIA_API_KEY_QWEN` | Optional | NVIDIA NIM key for Qwen model (Stage 1 default fallback) |
-| `NVIDIA_API_KEY_LLAMA` | Optional | NVIDIA NIM key for Llama model |
-| `NVIDIA_API_KEY_STAGE2` | Optional | NVIDIA NIM key for Stage 2 judge model |
-| `NVIDIA_API_KEY_DEEPSEEK` | Optional | NVIDIA NIM key for DeepSeek model |
-| `NVIDIA_API_KEY_MINIMAX` | Optional | NVIDIA NIM key for MiniMax model |
+| Variable | Status | Description |
+| :--- | :--- | :--- |
+| `GEMINI_API_KEY` | Required | API key for Gemini (Stage 2 Judge model) |
+| `NVIDIA_API_KEY_QWEN` | Required | NVIDIA NIM key for Qwen (Stage 1 Outfit Generation) |
+| `OPENROUTER_API_KEY` | Required | OpenRouter key for NVIDIA Nemotron-3 Super (Stage 4 Styling) |
+| `FRONTEND_URL` | Required | Allowed CORS origin (e.g. `https://my-app.vercel.app`) |
+| `PORT` | Optional | Server port (Defaults to 4000) |
+| `DEBUG_PIPELINE` | Optional | Set `true` to enable verbose LLM logging (Dev only) |
+| `NVIDIA_API_KEY_STAGE2` | Optional | Fallback key if Stage 2 Gemini fails |
+| `NVIDIA_API_KEY_LLAMA` | Optional | Fallback key if Stage 4 OpenRouter fails |
+| `NVIDIA_API_KEY_MINIMAX` | Optional | Fallback key if Stage 1 Qwen fails |
+| `NVIDIA_API_KEY_DEEPSEEK` | Optional | Additional optional fallback model |
 
-> **Fallback providers are entirely optional.** The pipeline runs with `GEMINI_API_KEY` alone. NVIDIA and OpenRouter are used when the primary provider times out or is unavailable.
+> **Multi-Provider Architecture:** The pipeline requires all three core API keys (`GEMINI_API_KEY`, `NVIDIA_API_KEY_QWEN`, `OPENROUTER_API_KEY`) to run its primary models. The other keys are only used for automatic failovers.
 
 ---
 
