@@ -5,7 +5,7 @@ const llmClient = require('../llm/index');
 const { recordMetric } = require('../utils/metrics');
 const { debugLog, debugWarn } = require('../utils/logger');
 
-const STAGE4_TIMEOUT_MS = 15000;
+const STAGE4_TIMEOUT_MS = 60000;
 
 function createFallbackStylistData(core) {
     const itemFeedback = {};
