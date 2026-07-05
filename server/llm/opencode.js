@@ -16,6 +16,9 @@ function getClient() {
     return client;
 }
 
+// Timeout for Opencode - 120s (must be less than pipeline timeout of 240s)
+const OPENCODE_TIMEOUT_MS = 120000;
+
 async function callOpencode(modelName, prompt, options = {}) {
     const apiClient = getClient();
     
@@ -26,7 +29,7 @@ async function callOpencode(modelName, prompt, options = {}) {
         top_p: options.top_p,
         max_tokens: options.maxTokens || 2048,
         stream: false
-    }, { timeout: 45000 });
+    }, { timeout: OPENCODE_TIMEOUT_MS });
     
     if (!completion || !completion.choices || !completion.choices[0]) {
         console.error("Opencode returned unexpected response:", JSON.stringify(completion, null, 2));

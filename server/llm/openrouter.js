@@ -20,6 +20,9 @@ function getClient() {
     return client;
 }
 
+// Timeout for OpenRouter - 120s (must be less than pipeline timeout of 240s)
+const OPENROUTER_TIMEOUT_MS = 120000;
+
 async function callOpenrouter(modelName, prompt, options = {}) {
     const apiClient = getClient();
 
@@ -30,7 +33,7 @@ async function callOpenrouter(modelName, prompt, options = {}) {
         top_p: options.top_p,
         max_tokens: options.maxTokens || 4096,
         stream: false,
-    }, { timeout: 45000 });
+    }, { timeout: OPENROUTER_TIMEOUT_MS });
 
     if (!completion || !completion.choices || !completion.choices[0]) {
         console.error('OpenRouter returned unexpected response:', JSON.stringify(completion, null, 2));

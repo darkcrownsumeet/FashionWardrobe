@@ -4,6 +4,10 @@ const llmClient = require('../llm/index');
 const { recordMetric } = require('../utils/metrics');
 const { debugLog, debugWarn } = require('../utils/logger');
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function runStage2(gender, occasion, styles, explorerCandidates, itemMap, sendEvent) {
     sendEvent({ status: "Judging outfit candidates..." });
     
@@ -40,6 +44,10 @@ async function runStage2(gender, occasion, styles, explorerCandidates, itemMap, 
         console.error("API Error (Stage 2):", err.message);
         recordMetric('stage2_fallback_count');
         sendEvent({ status: "Primary judge failed, using fallback..." });
+        
+        // Exponential backoff: 2 seconds before fallback
+        await sleep(2000);
+        
         try {
             jsonText = await llmClient.generate({ stage: "stage2", prompt: prompt, useFallback: true });
         } catch (fallbackErr) {

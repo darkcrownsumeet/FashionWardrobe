@@ -4,6 +4,10 @@ const llmClient = require('../llm/index');
 const { recordMetric } = require('../utils/metrics');
 const { debugLog, debugWarn } = require('../utils/logger');
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function runStage1(gender, occasion, styles, wearingList, itemIdList, sendEvent) {
     sendEvent({ status: "Exploring wardrobe..." });
     const prompt = buildStage1Prompt(gender, occasion, styles, wearingList, itemIdList);
@@ -19,6 +23,9 @@ async function runStage1(gender, occasion, styles, wearingList, itemIdList, send
         console.warn(`Stage 1 Attempt 1 failed: ${err.message}. Retrying primary provider...`);
         recordMetric('stage1_retry_count');
         
+        // Exponential backoff: 2 seconds before retry
+        await sleep(2000);
+        
         // Attempt 2: Primary Retry
         try {
             console.log("Stage 1: Calling LLM Client (Attempt 2)...");
@@ -27,6 +34,9 @@ async function runStage1(gender, occasion, styles, wearingList, itemIdList, send
             console.warn(`Stage 1 Attempt 2 failed: ${err2.message}. Falling back to secondary provider...`);
             recordMetric('stage1_fallback_count');
             sendEvent({ status: "Primary provider failed, using fallback..." });
+            
+            // Exponential backoff: 5 seconds before fallback
+            await sleep(5000);
             
             // Attempt 3: Fallback Provider
             try {

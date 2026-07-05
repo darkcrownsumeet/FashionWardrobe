@@ -43,9 +43,11 @@ async function callNvidia(modelName, prompt, options = {}) {
         requestPayload.chat_template_kwargs = { "thinking": true, "reasoning_effort": "low" };
     }
 
-    const requestOptions = { timeout: 45000 };
+    // Timeouts must be less than pipeline timeout (240s)
+    // Default: 90s, Slow models (deepseek, minimax, qwen): 180s
+    const requestOptions = { timeout: 90000 };
     if (modelName.includes('deepseek') || modelName.includes('minimax') || modelName.includes('qwen')) {
-        requestOptions.timeout = 300000;
+        requestOptions.timeout = 180000;
         requestOptions.maxRetries = 0;
     }
 

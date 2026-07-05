@@ -87,7 +87,7 @@ const ResultsPage = (() => {
     }
 
     function _getColorStyle(colorName) {
-        if (!colorName) return '';
+        if (!colorName || typeof colorName !== 'string') return '';
         const name = colorName.toLowerCase().replace(/[^a-z]/g, '');
         
         // Check our massive external API map first!
@@ -476,37 +476,82 @@ const ResultsPage = (() => {
         const prefs = Store.getAll();
         const container = document.getElementById('results-wrapper');
         
-        // Cycle loading messages (will be overridden by SSE)
-        const messages = ["Curating style profile...", "Testing combinations...", "Evaluating color harmony...", "Generating collections..."];
-        let msgIndex = 0;
-        const msgInterval = setInterval(() => {
+        // Track start time for elapsed time display
+        const loadStartTime = Date.now();
+        let lastStage = 'initializing';
+        let stageStartTime = loadStartTime;
+
+        let sseReceived = false;
+        let heartbeatReceived = false;
+
+        // Update elapsed time every second
+        let elapsedInterval = setInterval(() => {
             const el = document.getElementById('loading-text');
             if (el) {
-                msgIndex = (msgIndex + 1) % messages.length;
-                el.style.opacity = 0;
-                setTimeout(() => {
-                    el.textContent = messages[msgIndex];
-                    el.style.opacity = 1;
-                }, 300);
+                const elapsed = Math.round((Date.now() - loadStartTime) / 1000);
+                const currentText = el.dataset.baseText || 'Analyzing your selections...';
+                el.textContent = `${currentText} (${elapsed}s)`;
             }
-        }, 2000);
+        }, 1000);
+
+        // Show warm-up message after 20s if no SSE event arrived yet
+        const warmupTimeout = setTimeout(() => {
+            if (!sseReceived) {
+                const el = document.getElementById('loading-text');
+                if (el) {
+                    el.dataset.baseText = 'The styling engine is warming up. Your first request may take a little longer...';
+                }
+            }
+        }, 20000);
+
+        // Show timeout warning after 180s
+        const timeoutWarningTimeout = setTimeout(() => {
+            const el = document.getElementById('loading-text');
+            if (el) {
+                el.dataset.baseText = 'This is taking longer than expected. The engine may be under heavy load.';
+                el.style.color = 'var(--brand)';
+            }
+        }, 180000);
 
         const progressHandler = (e) => {
-            clearInterval(msgInterval);
+            const detail = typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail);
+
+            // Ignore heartbeat messages - don't override stage info
+            if (detail.includes('heartbeat') || detail === 'Still analyzing your outfit...') {
+                heartbeatReceived = true;
+                return;
+            }
+
+            sseReceived = true;
+            clearTimeout(warmupTimeout);
+
+            // Track stage changes
+            if (detail.includes('wardrobe') || detail.includes('Exploring')) {
+                lastStage = 'stage1';
+                stageStartTime = Date.now();
+            } else if (detail.includes('Judging') || detail.includes('candidates')) {
+                lastStage = 'stage2';
+                stageStartTime = Date.now();
+            } else if (detail.includes('diversity') || detail.includes('filter')) {
+                lastStage = 'stage3';
+                stageStartTime = Date.now();
+            } else if (detail.includes('Styling') || detail.includes('selections')) {
+                lastStage = 'stage4';
+                stageStartTime = Date.now();
+            }
+
             const el = document.getElementById('loading-text');
             if (el) {
-                el.style.opacity = 0;
-                setTimeout(() => {
-                    el.textContent = e.detail;
-                    el.style.opacity = 1;
-                }, 300);
+                el.dataset.baseText = detail;
             }
         };
         document.addEventListener('recommendation-progress', progressHandler);
 
         try {
             const result = await RecommendationEngine.generate(prefs);
-            clearInterval(msgInterval);
+            clearInterval(elapsedInterval);
+            clearTimeout(warmupTimeout);
+            clearTimeout(timeoutWarningTimeout);
             document.removeEventListener('recommendation-progress', progressHandler);
             
             const collections = result.collections || [];
@@ -744,7 +789,10 @@ const ResultsPage = (() => {
             });
 
         } catch (error) {
-            clearInterval(msgInterval);
+            clearInterval(elapsedInterval);
+            clearTimeout(warmupTimeout);
+            clearTimeout(timeoutWarningTimeout);
+            document.removeEventListener('recommendation-progress', progressHandler);
             console.error('Results page error:', error);
             container.innerHTML = `
             <div class="flex-grow flex items-center justify-center border-b border-foreground dark:border-background h-full">

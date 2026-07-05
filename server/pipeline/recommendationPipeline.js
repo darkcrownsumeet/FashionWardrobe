@@ -7,16 +7,70 @@ const { validateCandidate } = require('../stages/structuralValidator');
 const { resetMetrics, dumpMetricsIfDebug, recordMetric } = require('../utils/metrics');
 const { debugLog, debugWarn } = require('../utils/logger');
 
-async function runRecommendationPipeline(reqBody, sendEvent) {
+const PIPELINE_TIMEOUT_MS = 240000;
+
+async function runRecommendationPipeline(reqBody, sendEvent, isClientConnectedRef) {
     const pipelineStartTime = Date.now();
-    const MAX_PROJECTED_SCORE_BOOST = 15;
+
+    // Global pipeline timeout — hard deadline to prevent indefinite hangs
+    let pipelineTimeoutId;
+    const pipelineTimeout = new Promise((_, reject) => {
+        pipelineTimeoutId = setTimeout(() => reject(new Error("Pipeline timeout")), PIPELINE_TIMEOUT_MS);
+    });
+
+    // Heartbeat — sends periodic progress so the frontend doesn't appear stuck
+    const heartbeatInterval = setInterval(() => {
+        if (isClientConnectedRef && isClientConnectedRef()) {
+            sendEvent({ status: "Still analyzing your outfit..." });
+        }
+    }, 15000);
 
     resetMetrics();
 
+    try {
+        await Promise.race([
+            runPipeline(reqBody, sendEvent, pipelineStartTime, isClientConnectedRef),
+            pipelineTimeout
+        ]);
+    } catch (error) {
+        if (error.message === "Pipeline timeout") {
+            const duration = Date.now() - pipelineStartTime;
+            debugWarn("Pipeline Timeout", `Pipeline exceeded ${PIPELINE_TIMEOUT_MS}ms limit after ${duration}ms`);
+            if (isClientConnectedRef && isClientConnectedRef()) {
+                sendEvent({ 
+                    error: "The recommendation engine timed out. Please try again." 
+                });
+            }
+        } else {
+            throw error;
+        }
+    } finally {
+        clearTimeout(pipelineTimeoutId);
+        clearInterval(heartbeatInterval);
+    }
+}
+
+async function runPipeline(reqBody, sendEvent, pipelineStartTime, isClientConnectedRef) {
+    const MAX_PROJECTED_SCORE_BOOST = 15;
+
+    console.log('[PIPELINE] runPipeline started');
+    console.log('[PIPELINE] reqBody keys:', Object.keys(reqBody));
+    console.log('[PIPELINE] prefs:', JSON.stringify(reqBody.prefs));
+    console.log('[PIPELINE] selectedItems count:', reqBody.selectedItems?.length);
+    console.log('[PIPELINE] itemColors keys:', Object.keys(reqBody.itemColors || {}));
+
     const validation = validateRequest(reqBody);
     if (!validation.isValid) {
+        console.log('[PIPELINE] Validation failed:', validation.error);
         sendEvent({ error: validation.error });
         dumpMetricsIfDebug();
+        return;
+    }
+    console.log('[PIPELINE] Validation passed');
+
+    // Check client connection early
+    if (isClientConnectedRef && !isClientConnectedRef()) {
+        debugWarn("Pipeline Abort", "Client disconnected before pipeline started");
         return;
     }
 
@@ -62,6 +116,10 @@ async function runRecommendationPipeline(reqBody, sendEvent) {
     }
 
     // --- STAGE 1: Explorer ---
+    if (isClientConnectedRef && !isClientConnectedRef()) {
+        debugWarn("Pipeline Abort", "Client disconnected before Stage 1");
+        return;
+    }
     const t1Start = Date.now();
     const stage1ResultRaw = await runStage1(gender, occasion, styles, wearingList, itemIdList, sendEvent);
     recordMetric('stage1_latency_ms', Date.now() - t1Start);
@@ -105,6 +163,12 @@ async function runRecommendationPipeline(reqBody, sendEvent) {
         return;
     }
 
+    // Check client connection before Stage 2
+    if (isClientConnectedRef && !isClientConnectedRef()) {
+        debugWarn("Pipeline Abort", "Client disconnected before Stage 2");
+        return;
+    }
+
     // --- STAGE 2: Outfit Judge ---
     const t2Start = Date.now();
     const stage2Result = await runStage2(gender, occasion, styles, explorerCandidates, itemMap, sendEvent);
@@ -129,10 +193,22 @@ async function runRecommendationPipeline(reqBody, sendEvent) {
         return;
     }
 
+    // Check client connection before Stage 3
+    if (isClientConnectedRef && !isClientConnectedRef()) {
+        debugWarn("Pipeline Abort", "Client disconnected before Stage 3");
+        return;
+    }
+
     // --- STAGE 3: Diversity Filter ---
     const t3Start = Date.now();
     const stage3Result = runStage3(survivingCores, itemMap, sendEvent);
     recordMetric('stage3_latency_ms', Date.now() - t3Start);
+
+    // Check client connection before Stage 4
+    if (isClientConnectedRef && !isClientConnectedRef()) {
+        debugWarn("Pipeline Abort", "Client disconnected before Stage 4");
+        return;
+    }
 
     // --- STAGE 4: The Stylist ---
     const t4Start = Date.now();

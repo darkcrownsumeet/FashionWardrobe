@@ -7,6 +7,10 @@ const { debugLog, debugWarn } = require('../utils/logger');
 
 const STAGE4_TIMEOUT_MS = 60000;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 function createFallbackStylistData(core) {
     const itemFeedback = {};
     if (core.items) {
@@ -46,7 +50,7 @@ function validateStage4Response(parsed, core) {
         }
     }
 
-    if (typeof parsed.projectedScore !== 'number' || parsed.projectedScore < core.currentScore) {
+    if (typeof parsed.projectedScore !== 'number' || parsed.projectedScore < core.currentScore || parsed.projectedScore > 100) {
         debugWarn("Stage 4 Validation", `projectedScore ${parsed.projectedScore} must be >= currentScore ${core.currentScore}`);
         recordMetric('schema_violations');
         return false;
@@ -87,10 +91,25 @@ function sanitizeStage4Result(stage4Result, core) {
     if (!stage4Result) return stage4Result;
 
     // Cross-Stage Contract Validation: completionPotential
-    if (core.completionPotential === 'NONE' && stage4Result.requiredGarment !== null) {
+    if (core.completionPotential !== 'HIGH' && stage4Result.requiredGarment !== null) {
         debugWarn("Stage 4 Contract Violation", "LLM violated completionPotential contract (returned a requiredGarment when NONE).");
         recordMetric('stage4_completion_violations');
         stage4Result.requiredGarment = null;
+    }
+
+    // Cross-Stage Contract Validation: requiredGarment sub-field integrity
+    if (stage4Result.requiredGarment && typeof stage4Result.requiredGarment === 'object') {
+        const requiredGarmentKeys = ['category', 'name', 'reason', 'matchColors', 'avoidColors'];
+        const missingKeys = requiredGarmentKeys.filter(key => !(key in stage4Result.requiredGarment));
+        if (missingKeys.length > 0) {
+            debugWarn("Stage 4 Sanitizer", `requiredGarment missing fields: ${missingKeys.join(', ')}. Nullifying.`);
+            recordMetric('stage4_sanitizer_corrections');
+            stage4Result.requiredGarment = null;
+        } else if (!Array.isArray(stage4Result.requiredGarment.matchColors) || !Array.isArray(stage4Result.requiredGarment.avoidColors)) {
+            debugWarn("Stage 4 Sanitizer", "requiredGarment matchColors or avoidColors is not an array. Nullifying.");
+            recordMetric('stage4_sanitizer_corrections');
+            stage4Result.requiredGarment = null;
+        }
     }
 
     // Cross-Stage Contract Validation: itemFeedback hallucination check
@@ -187,6 +206,21 @@ function sanitizeStage4Result(stage4Result, core) {
             return true;
         });
 
+        // Enforce exactly 4 accessories
+        if (stage4Result.accessories.length !== 4) {
+            debugWarn("Stage 4 Accessory Count", `Expected 4 accessories, got ${stage4Result.accessories.length}. Padding/trimming.`);
+            recordMetric('stage4_sanitizer_corrections');
+            while (stage4Result.accessories.length < 4) {
+                stage4Result.accessories.push({
+                    name: "Curated Accessory",
+                    category: "accessory",
+                    why: "Completes the overall look.",
+                    colors: { match: ["Black"], avoid: [] }
+                });
+            }
+            stage4Result.accessories = stage4Result.accessories.slice(0, 4);
+        }
+
         // Color validation for accessories
         stage4Result.accessories.forEach(acc => {
             if (acc.colors && typeof acc.colors === 'object' && !Array.isArray(acc.colors)) {
@@ -272,6 +306,9 @@ async function processOutfitWithRetry(core, index, occasion, styles) {
         console.warn(`Stage 4 (Outfit ${index}) Attempt 1 failed: ${err.message}. Retrying...`);
         recordMetric('stage4_retry_count');
         
+        // Exponential backoff: 2 seconds before retry
+        await sleep(2000);
+        
         // Attempt 2 (Retry)
         try {
             const jsonText2 = await callLlmWithTimeout(prompt, true);
@@ -284,6 +321,10 @@ async function processOutfitWithRetry(core, index, occasion, styles) {
         } catch (err2) {
             console.error(`Stage 4 (Outfit ${index}) Retry failed: ${err2.message}. Using fallback.`);
             recordMetric('stage4_fallback_count');
+            
+            // Exponential backoff: 5 seconds before fallback
+            await sleep(5000);
+            
             parsedResult = createFallbackStylistData(core);
         }
     }
@@ -296,28 +337,41 @@ async function processOutfitWithRetry(core, index, occasion, styles) {
 
 async function runStage4(occasion, styles, finalCores, sendEvent) {
     sendEvent({ status: "Styling final selections..." });
-    console.log(`Stage 4: Processing ${finalCores.length} outfits concurrently...`);
+    console.log("===== ENTERED STAGE 4 =====");
+    console.log(`Stage 4: Processing ${finalCores.length} outfits with concurrency limit of 2...`);
 
-    const promises = finalCores.map((core, index) => 
-        processOutfitWithRetry(core, index, occasion, styles)
-    );
+    // Concurrency limiter - max 2 concurrent styling requests to avoid rate limiting
+    const MAX_CONCURRENT = 2;
+    const queue = [...finalCores];
+    const results = [];
+    const running = [];
 
-    const outcomes = await Promise.allSettled(promises);
-    
-    // Aggregate and sort to preserve original Stage 3 order
-    const aggregated = [];
-    outcomes.forEach(outcome => {
-        if (outcome.status === 'fulfilled') {
-            aggregated.push(outcome.value);
-        } else {
-            // Should not happen because processOutfitWithRetry catches all and returns fallback
-            console.error("Critical failure: processOutfitWithRetry rejected a promise:", outcome.reason);
-        }
-    });
+    async function processNext() {
+        if (queue.length === 0) return;
+        const core = queue.shift();
+        const index = finalCores.indexOf(core);
+        
+        const promise = processOutfitWithRetry(core, index, occasion, styles).then(result => {
+            results.push(result);
+            running.splice(running.indexOf(promise), 1);
+            processNext();
+        });
+        
+        running.push(promise);
+        await promise;
+    }
 
-    aggregated.sort((a, b) => a.index - b.index);
+    // Start initial workers
+    const initialWorkers = Math.min(MAX_CONCURRENT, queue.length);
+    await Promise.all(Array(initialWorkers).fill().map(() => processNext()));
 
-    const finalStyledOutfits = aggregated.map(item => {
+    // Wait for all to complete
+    await Promise.all(running);
+
+    // Sort results to preserve original Stage 3 order
+    results.sort((a, b) => a.index - b.index);
+
+    const finalStyledOutfits = results.map(item => {
         return {
             ...item.result,
             index: item.index

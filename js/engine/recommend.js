@@ -46,13 +46,16 @@ const RecommendationEngine = (() => {
         }
 
         // Determine API base URL
-        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        const isLocalFrontend = window.location.protocol === 'file:'
+            || window.location.hostname === 'localhost'
+            || window.location.hostname === '127.0.0.1';
+        const API_BASE = isLocalFrontend
             ? 'http://localhost:4000'
             : 'https://fashionwardrobe-api.onrender.com';
 
         activeController = new AbortController();
-        // 180s to accommodate Render cold-start (up to 60s) + slow LLM calls
-        const timeoutId = setTimeout(() => { if (activeController) activeController.abort(); }, 180000);
+        // 300s to accommodate cold-start + slow LLM calls
+        const timeoutId = setTimeout(() => { if (activeController) activeController.abort(); }, 300000);
 
         // Call the backend API
         try {
@@ -87,23 +90,15 @@ const RecommendationEngine = (() => {
                 buffer = lines.pop(); // Keep the incomplete last line in the buffer
                 
                 for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        try {
-                            const parsed = JSON.parse(line.substring(6));
-                            if (parsed.status) {
-                                // Emit progress update
-                                document.dispatchEvent(new CustomEvent('recommendation-progress', { detail: parsed.status }));
-                            }
-                            if (parsed.result) {
-                                dataObj = parsed.result;
-                            }
-                            if (parsed.error) {
-                                throw new Error(parsed.error);
-                            }
-                        } catch(e) {
-                            // ignore parse errors for partial chunks
-                        }
-                    }
+                    processStreamLine(line);
+                }
+            }
+            
+            // Flush any remaining data in buffer after stream ends
+            if (buffer.trim()) {
+                const line = buffer.trim();
+                if (line.startsWith('data: ')) {
+                    processStreamLine(line);
                 }
             }
 
@@ -116,13 +111,35 @@ const RecommendationEngine = (() => {
                     if (col.yourLook) {
                         col.yourLook.forEach(item => {
                             if (itemColors[item.id]) {
-                                item.colorData = { primary: itemColors[item.id], pattern: 'Solid' }; // Defaulting pattern to solid when overriding with user color
+                                const c = itemColors[item.id];
+                                item.colorData = { primary: c.primary || '', pattern: c.pattern || 'Solid' };
                             }
                         });
                     }
                 });
             }
             return dataObj;
+
+            function processStreamLine(line) {
+                if (!line.startsWith('data: ')) return;
+
+                let parsed;
+                try {
+                    parsed = JSON.parse(line.substring(6));
+                } catch (parseErr) {
+                    return;
+                }
+
+                if (parsed.status) {
+                    document.dispatchEvent(new CustomEvent('recommendation-progress', { detail: parsed.status }));
+                }
+                if (parsed.result) {
+                    dataObj = parsed.result;
+                }
+                if (parsed.error) {
+                    throw new Error(parsed.error);
+                }
+            }
 
         } catch (e) {
             console.error("Styling Engine Error:", e);
@@ -146,7 +163,7 @@ const RecommendationEngine = (() => {
                         yourLook: allItems,
                         accessories: [],
                         isOffline: true,
-                        offlineMsg: `Could not connect to AI engine. (${API_BASE})`
+                        offlineMsg: `Could not connect to AI engine. ${e.message || ''} (${API_BASE})`
                     }
                 ]
             };
