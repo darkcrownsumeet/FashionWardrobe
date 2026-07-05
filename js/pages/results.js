@@ -766,7 +766,8 @@ const ResultsPage = (() => {
                 if (!col) return;
 
                 const lookName = col.name || 'Curated Look';
-                if (Store.isOutfitSaved(lookName)) { App.showToast('Outfit already saved'); return; }
+                const lookItems = [...(col.yourLook || []), ...(col.accessories || [])];
+                if (Store.isOutfitSaved(lookName, lookItems)) { App.showToast('Outfit already saved'); return; }
                 
                 Store.saveOutfit({
                     name: lookName,
@@ -851,7 +852,8 @@ const ResultsPage = (() => {
         const btn = document.getElementById('save-look-btn');
         if (col && btn) {
             const lookName = col.name || 'Curated Look';
-            if (Store.isOutfitSaved(lookName)) {
+            const lookItems = [...(col.yourLook || []), ...(col.accessories || [])];
+            if (Store.isOutfitSaved(lookName, lookItems)) {
                 btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">bookmark_added</span> Saved';
                 btn.classList.remove('bg-brand', 'bg-foreground', 'dark:bg-background', 'text-brand-foreground', 'text-background', 'dark:text-foreground');
                 btn.classList.add('bg-foreground', 'dark:bg-background', 'text-background', 'dark:text-foreground');

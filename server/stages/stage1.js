@@ -76,19 +76,20 @@ async function runStage1(gender, occasion, styles, wearingList, itemIdList, send
                 }
                 
                 // Check for hallucinated IDs
-                let hasHallucination = false;
+                let filteredIds = uniqueIds;
                 if (allowedIdSet.size > 0) {
-                    for (const id of uniqueIds) {
+                    filteredIds = uniqueIds.filter(id => {
                         if (!allowedIdSet.has(id)) {
-                            hasHallucination = true;
                             recordMetric('stage1_hallucinated_ids');
                             debugWarn("Stage 1 Hallucination", `Removed hallucinated ID: ${id}`);
+                            return false;
                         }
-                    }
+                        return true;
+                    });
                 }
                 
-                if (!hasHallucination && uniqueIds.length > 0) {
-                    validCandidates.push(uniqueIds);
+                if (filteredIds.length > 0) {
+                    validCandidates.push(filteredIds);
                 }
             }
             parsed.candidates = validCandidates;

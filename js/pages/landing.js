@@ -88,6 +88,7 @@ const LandingPage = (function () {
     }
 
     // 3. Scroll-triggered Reveal Animations
+    if (window._landingObserver) window._landingObserver.disconnect();
     const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
@@ -117,6 +118,7 @@ const LandingPage = (function () {
 
         observer.observe(el);
       });
+    window._landingObserver = observer;
 
     // 5. Stats Counter Logic
     function animateStats() {

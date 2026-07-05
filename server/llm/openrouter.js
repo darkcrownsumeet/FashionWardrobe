@@ -31,7 +31,7 @@ async function callOpenrouter(modelName, prompt, options = {}) {
         messages: [{ role: 'user', content: prompt }],
         temperature: options.temperature ?? 0.2,
         top_p: options.top_p,
-        max_tokens: options.maxTokens || 4096,
+        max_tokens: options.maxTokens ?? 4096,
         stream: false,
     }, { timeout: OPENROUTER_TIMEOUT_MS });
 

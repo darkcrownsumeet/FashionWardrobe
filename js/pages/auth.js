@@ -225,7 +225,8 @@ const AuthPage = (() => {
         document.getElementById('auth-toggle-text').innerHTML = 
             'ALREADY SAVED PREFERENCES? <a class="text-foreground dark:text-background font-bold hover:text-brand border-b border-foreground dark:border-background hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">SIGN IN</a>';
         // Re-bind toggle
-        document.getElementById('toggle-auth-mode')?.addEventListener('click', switchToSignIn);
+        const t1 = document.getElementById('toggle-auth-mode');
+        if (t1) t1.onclick = switchToSignIn;
         clearAllErrors();
     }
 
@@ -240,7 +241,8 @@ const AuthPage = (() => {
         document.getElementById('auth-toggle-text').innerHTML =
             'DON\'T HAVE PREFERENCES SAVED? <a class="text-foreground dark:text-background font-bold hover:text-brand border-b border-foreground dark:border-background hover:border-brand cursor-pointer inline-block ml-2" id="toggle-auth-mode">SIGN UP</a>';
         // Re-bind toggle
-        document.getElementById('toggle-auth-mode')?.addEventListener('click', switchToSignUp);
+        const t2 = document.getElementById('toggle-auth-mode');
+        if (t2) t2.onclick = switchToSignUp;
         clearAllErrors();
     }
 

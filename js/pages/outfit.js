@@ -357,7 +357,8 @@ const OutfitPage = (() => {
             }
         }
 
-        if (sections = document.querySelectorAll('.category-section'), sections.length > 0) {
+        const sections = document.querySelectorAll('.category-section');
+        if (sections.length > 0) {
             activateCategory(sections[0].id);
         }
 

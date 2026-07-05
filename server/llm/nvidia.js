@@ -33,9 +33,9 @@ async function callNvidia(modelName, prompt, options = {}) {
     const requestPayload = {
         model: modelName,
         messages: [{ role: 'user', content: prompt }],
-        temperature: options.temperature || 0.7,
+        temperature: options.temperature ?? 0.7,
         top_p: options.top_p,
-        max_tokens: options.maxTokens || 2048,
+        max_tokens: options.maxTokens ?? 2048,
         stream: false
     };
 

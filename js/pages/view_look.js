@@ -178,7 +178,7 @@ const ViewLookPage = (() => {
             if (hash.includes('?data=')) {
                 try {
                     const encoded = hash.split('?data=')[1];
-                    outfit = JSON.parse(atob(encoded));
+                    outfit = JSON.parse(decodeURIComponent(escape(atob(encoded))));
                 } catch(e) {
                     console.error("Failed to parse shared look", e);
                 }

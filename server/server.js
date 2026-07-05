@@ -80,8 +80,15 @@ app.post('/api/recommend', async (req, res) => {
 
     const sendEvent = (data) => {
         if (!isClientConnected) return;
-        console.log(`[${reqId}] Sending event:`, JSON.stringify(data).substring(0, 100));
-        res.write(`data: ${JSON.stringify(data)}\n\n`);
+        const raw = JSON.stringify(data);
+        if (data.result) {
+            console.log(`[${reqId}] Result:`, raw);
+        } else if (raw.length < 200) {
+            console.log(`[${reqId}] Sending event:`, raw);
+        } else {
+            console.log(`[${reqId}] Sending event type:`, data.status || 'unknown');
+        }
+        res.write(`data: ${raw}\n\n`);
     };
 
     // Connection checker for pipeline

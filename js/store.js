@@ -87,11 +87,17 @@ const Store = (() => {
         }
     }
 
+    function _contentHash(items) {
+        if (!items || !items.length) return '';
+        return items.map(i => i.id).sort().join('|');
+    }
+
     function saveOutfit(outfit) {
         const saved = getSaved();
         const entry = {
             id: 'outfit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
             ...outfit,
+            contentHash: _contentHash(outfit.items),
             savedAt: new Date().toISOString()
         };
         saved.unshift(entry);
@@ -104,8 +110,9 @@ const Store = (() => {
         localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
     }
 
-    function isOutfitSaved(name) {
-        return getSaved().some(o => o.name === name);
+    function isOutfitSaved(name, items) {
+        const hash = items ? _contentHash(items) : null;
+        return getSaved().some(o => (hash && o.contentHash === hash) || (!hash && o.name === name));
     }
 
     // --- Wishlist (localStorage for persistence) ---

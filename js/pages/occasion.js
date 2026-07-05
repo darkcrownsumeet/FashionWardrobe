@@ -48,7 +48,7 @@ const OccasionPage = (() => {
             }).join('');
 
             pagesHtml += `
-            <div class="page-container absolute inset-0 p-4 lg:p-12 grid grid-cols-2 gap-4 lg:gap-10 transition-all duration-700 ease-[var(--ease-out-expo)]" data-page="${pageIdx}" style="opacity: ${pageIdx === 0 ? '0' : '0'}; transform: translateX(${pageIdx === 0 ? '12px' : '1.5rem'}); pointer-events: ${pageIdx === 0 ? 'auto' : 'none'};">
+            <div class="page-container absolute inset-0 p-4 lg:p-12 grid grid-cols-2 gap-4 lg:gap-10 transition-all duration-700 ease-[var(--ease-out-expo)]" data-page="${pageIdx}" style="opacity: ${pageIdx === 0 ? '1' : '0'}; transform: translateX(${pageIdx === 0 ? '12px' : '1.5rem'}); pointer-events: ${pageIdx === 0 ? 'auto' : 'none'};">
                 ${cardsInPage}
             </div>`;
         }

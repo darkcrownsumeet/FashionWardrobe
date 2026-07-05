@@ -277,6 +277,7 @@ const ColorPage = (() => {
         });
 
         // Pickr Custom Color instantiation
+        if (typeof window.Pickr !== 'undefined') {
         document.querySelectorAll('.pickr-anchor').forEach(anchor => {
             const itemId = anchor.dataset.itemId;
             const type = anchor.dataset.type;
@@ -322,6 +323,7 @@ const ColorPage = (() => {
 
             window.activePickers.push(pickr);
         });
+        } // end Pickr guard
 
         // Add secondary color
         document.querySelectorAll('.add-secondary-btn').forEach(btn => {

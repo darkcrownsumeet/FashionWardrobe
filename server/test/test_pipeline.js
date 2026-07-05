@@ -160,7 +160,12 @@ async function testPipelineValidations() {
                 stylingInsight: "Insight",
                 itemFeedback: { "hallucinated": { status: "KEEP" } }, // Hallucinated ID
                 requiredGarment: { type: "Jacket", matchColors: ["red"], avoidColors: ["blue"] }, // Completion Violation (NONE)
-                accessories: [{ category: "Accessory", name: "Hat", colors: { match: ["NEON_YELLOW"], avoid: ["black"] } }] // Color correction needed
+                accessories: [
+                    { category: "Accessory", name: "Hat", colors: { match: ["NEON_YELLOW"], avoid: ["black"] } },
+                    { category: "accessory", name: "Watch", colors: { match: ["Silver"], avoid: ["Gold"] } },
+                    { category: "accessory", name: "Belt", colors: { match: ["Black"], avoid: ["Brown"] } },
+                    { category: "accessory", name: "Bag", colors: { match: ["Navy"], avoid: ["Red"] } }
+                ]
             });
         }
         return JSON.stringify({ name: "Fail", projectedScore: 10 }); // Force retry
@@ -181,7 +186,7 @@ async function testPipelineValidations() {
         !retryCalled ||
         m4.schema_violations !== 1 || // The initial failure due to projectedScore < currentScore
         m4.stage4_completion_violations !== 1 ||
-        m4.stage4_sanitizer_corrections !== 2 || // 1 dropped hallucination, 1 restored required ID
+        m4.stage4_sanitizer_corrections !== 2 || // 1 hallucinated ID dropped, 1 required ID restored
         m4.stage4_color_corrections !== 1 || // 'NEON_YELLOW' is not canonical, so it gets removed
         finalStyle.requiredGarment !== null || // Should be nullified by completionPotential === NONE
         !finalStyle.itemFeedback["valid1"] ||

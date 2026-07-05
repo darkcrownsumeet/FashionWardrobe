@@ -25,9 +25,9 @@ async function callOpencode(modelName, prompt, options = {}) {
     const completion = await apiClient.chat.completions.create({
         model: modelName,
         messages: [{ role: 'user', content: prompt }],
-        temperature: options.temperature || 0.7,
+        temperature: options.temperature ?? 0.7,
         top_p: options.top_p,
-        max_tokens: options.maxTokens || 2048,
+        max_tokens: options.maxTokens ?? 2048,
         stream: false
     }, { timeout: OPENCODE_TIMEOUT_MS });
     

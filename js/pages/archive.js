@@ -165,7 +165,7 @@ const ArchivePage = (() => {
                     score: outfit.score,
                     items: outfit.items.map(i => ({ name: i.name, image: i.image }))
                 };
-                const base64 = btoa(JSON.stringify(minified));
+                const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(minified))));
                 const url = window.location.origin + window.location.pathname + '#/view?data=' + base64;
                 
                 navigator.clipboard.writeText(url).then(() => {
