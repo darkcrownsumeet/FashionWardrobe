@@ -21,7 +21,6 @@
 
 ## 📸 Screenshots
 
-*(Replace the placeholders below with actual screenshots of your application)*
 
 ### Landing Page
 ![Landing Page](screenshots/landing-page.png)
@@ -39,9 +38,7 @@
 
 ## 🚀 Demo
 
-*(Link to your live demo, video walkthrough, or interactive presentation here)*
-
-**[View Live Demo](#)** | **[Watch Walkthrough Video](#)**
+**[View Live Demo](https://youtu.be/vrDJnwsnJwk)** 
 
 ---
 
@@ -53,7 +50,6 @@
 | Fonts | Google Fonts (Montserrat, Inter, Playfair Display) |
 | Icons | Google Material Symbols |
 | Color Picker | [Pickr](https://simonwep.github.io/pickr/) |
-| AI Images | [Pollinations AI](https://pollinations.ai/) |
 | Backend | Node.js + Express |
 | Primary AI Engine | Google Gemini 2.5 Flash (`@google/generative-ai`) |
 | Fallback AI Engines | NVIDIA NIM API, OpenRouter (optional) |
@@ -271,7 +267,6 @@ Runs deterministic pipeline validation tests that simulate LLM failures, schema 
 ## 🙏 Acknowledgements
 
 - [Google Gemini AI](https://deepmind.google/technologies/gemini/) for powering the fashion intelligence
-- [Pollinations AI](https://pollinations.ai/) for AI-generated product imagery
 - [Pickr](https://simonwep.github.io/pickr/) for the color picker component
 - [Tailwind CSS](https://tailwindcss.com/) for rapid UI styling
 
