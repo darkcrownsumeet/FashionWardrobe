@@ -24,16 +24,16 @@
 *(Replace the placeholders below with actual screenshots of your application)*
 
 ### Landing Page
-![Landing Page Placeholder](https://via.placeholder.com/800x450?text=Landing+Page)
+![Landing Page](screenshots/landing-page.png)
 
 ### Outfit Selection
-![Outfit Selection Placeholder](https://via.placeholder.com/800x450?text=Outfit+Selection)
+![Outfit Selection](screenshots/outfit-selection.png)
 
 ### Recommendation Results
-![Results Placeholder](https://via.placeholder.com/800x450?text=Recommendation+Results)
+![Recommendation Results](screenshots/recommendation-results.png)
 
 ### Saved Archive
-![Archive Placeholder](https://via.placeholder.com/800x450?text=Saved+Archive)
+![Saved Archive](screenshots/saved-archive.png)
 
 ---
 
